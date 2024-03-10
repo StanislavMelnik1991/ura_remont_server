@@ -1,0 +1,3 @@
+[submodule "shared"]
+	path = src/shared
+	url = git@github.com:StanislavMelnik1991/ura_remont_shared.git
