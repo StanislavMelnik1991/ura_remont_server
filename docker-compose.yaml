@@ -1,0 +1,17 @@
+version: '3.1'
+
+services:
+  postgres:
+    container_name: ura_remont_pd_data
+    image: postgres:12
+    env_file:
+      - .env
+    environment:
+      PG_DATA: /var/lib/postgresql/data
+    ports:
+      - 5432:5432
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    restart: always
+volumes:
+  pgdata:
