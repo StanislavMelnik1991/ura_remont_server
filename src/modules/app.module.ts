@@ -2,20 +2,13 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { typeOrmConfig } from 'database';
-import { DictionaryModule } from './dictionary';
-import { TypeModule } from './type';
-
-import {
-  StaffAccessController,
-  StaffAccessService,
-  AdminsAccessService,
-  AdminsAccessController,
-} from 'routes';
-import { BrandModule } from './brand';
+import { LocalizedModule } from './localized';
+import { AuthModule } from './auth';
+import { AdminModule } from './admin';
 
 @Module({
-  controllers: [AdminsAccessController, StaffAccessController],
-  providers: [AdminsAccessService, StaffAccessService],
+  controllers: [],
+  providers: [],
   imports: [
     ConfigModule.forRoot({
       envFilePath: `.env`,
@@ -28,9 +21,9 @@ import { BrandModule } from './brand';
         expiresIn: '24h',
       },
     }),
-    DictionaryModule,
-    TypeModule,
-    BrandModule,
+    AdminModule,
+    LocalizedModule,
+    AuthModule,
   ],
 })
 export class AppModule {}
