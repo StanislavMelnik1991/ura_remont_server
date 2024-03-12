@@ -25,4 +25,10 @@ export class PrototypeProperty extends BaseEntity {
   })
   @Column()
   suffix: number;
+
+  @Column({ default: false })
+  isFilter: boolean;
+
+  @Column({ default: true })
+  display: boolean;
 }

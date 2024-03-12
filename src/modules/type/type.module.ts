@@ -1,25 +1,13 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { TypeController } from 'controllers';
-import {
-  Dictionary,
-  ProductType,
-  TypeProperty,
-  TypePropertyValue,
-} from 'database';
-import { TypeService } from 'services';
+import { TypeController } from './type.controller';
+import { Dictionary, ProductType, TypeProperty } from 'database';
+import { TypeService } from './type.service';
 
 @Module({
   controllers: [TypeController],
   providers: [TypeService],
-  imports: [
-    TypeOrmModule.forFeature([
-      ProductType,
-      TypeProperty,
-      TypePropertyValue,
-      Dictionary,
-    ]),
-  ],
+  imports: [TypeOrmModule.forFeature([ProductType, TypeProperty, Dictionary])],
   exports: [TypeService],
 })
 export class TypeModule {}

@@ -8,7 +8,7 @@ import {
   ParseIntPipe,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { BrandService } from 'services';
+import { BrandService } from './brand.service';
 import {
   BrandWithLocales,
   CreateBrandDto,
@@ -20,7 +20,7 @@ import {
 // @UseGuards(AdminRoleGuard)
 @Controller('api/admin/brand')
 export class BrandController {
-  constructor(private brandService: BrandService) {}
+  constructor(private service: BrandService) {}
 
   @ApiOperation({
     summary: 'Create brand',
@@ -29,7 +29,7 @@ export class BrandController {
   @ApiResponse({ status: 200, type: IdOnlyResponse })
   @Post('/')
   create(@Body() data: CreateBrandDto): Promise<IdOnlyResponse> {
-    return this.brandService.create(data);
+    return this.service.create(data);
   }
 
   @ApiOperation({
@@ -42,7 +42,7 @@ export class BrandController {
     @Body() data: UpdateBrandDto,
     @Param('id', ParseIntPipe) id: number,
   ): Promise<IdOnlyResponse> {
-    return this.brandService.update({ ...data, id });
+    return this.service.update({ ...data, id });
   }
 
   @ApiOperation({
@@ -52,6 +52,6 @@ export class BrandController {
   @ApiResponse({ status: 200, type: BrandWithLocales })
   @Get('/:id')
   getBrand(@Param('id', ParseIntPipe) id: number): Promise<BrandWithLocales> {
-    return this.brandService.getBrand(id);
+    return this.service.getBrand(id);
   }
 }

@@ -1,11 +1,6 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  Dictionary,
-  ProductType,
-  TypeProperty,
-  TypePropertyValue,
-} from 'database';
+import { Dictionary, ProductType, TypeProperty } from 'database';
 import { AcceptedLanguagesEnum } from 'shared/constants';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
 
@@ -19,8 +14,6 @@ export class TypeService {
     private typeRepository: Repository<ProductType>,
     @InjectRepository(TypeProperty)
     private propertyRepository: Repository<TypeProperty>,
-    @InjectRepository(TypePropertyValue)
-    private valueRepository: Repository<TypePropertyValue>,
   ) {}
   async create({ description, name }: CreationProps) {
     const queryRunner = this.dataSource.createQueryRunner();

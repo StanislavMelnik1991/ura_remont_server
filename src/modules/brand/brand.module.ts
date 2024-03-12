@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { BrandController } from 'controllers';
+import { BrandController } from './brand.controller';
 import { Brand, Dictionary } from 'database';
-import { BrandService } from 'services';
+import { BrandService } from './brand.service';
 
 @Module({
   controllers: [BrandController],

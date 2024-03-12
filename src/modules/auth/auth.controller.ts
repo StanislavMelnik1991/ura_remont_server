@@ -1,6 +1,6 @@
 import { Controller, Get, Param } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AuthService } from 'services';
+import { AuthService } from './auth.service';
 import { LocaleParamsDto } from 'shared/schemas';
 
 @ApiTags('Auth')
