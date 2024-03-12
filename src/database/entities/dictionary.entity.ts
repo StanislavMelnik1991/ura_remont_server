@@ -3,7 +3,7 @@ import { BaseEntity } from './base.entity';
 
 @Entity('dictionaries')
 export class Dictionary extends BaseEntity {
-  @Column()
+  @Column({ default: '' })
   ru: string;
 
   @Column({ nullable: true })

@@ -23,8 +23,8 @@ export class TypeProperty extends BaseEntity {
   @JoinColumn({
     name: 'suffix',
   })
-  @Column({ nullable: true })
-  suffix?: number;
+  @Column()
+  suffix: number;
 
   @Column({ default: false })
   isFilter: boolean;

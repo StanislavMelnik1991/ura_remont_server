@@ -1,7 +1,20 @@
-import { Body, Controller, Param, Patch, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Patch,
+  Post,
+  ParseIntPipe,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AdminBrandService } from 'services/admin';
-import { CreateBrandDto, IdOnlyResponse, UpdateBrandDto } from 'shared/schemas';
+import {
+  BrandWithLocales,
+  CreateBrandDto,
+  IdOnlyResponse,
+  UpdateBrandDto,
+} from 'shared/schemas';
 
 @ApiTags('Admins commands', 'Brand')
 // @UseGuards(AdminRoleGuard)
@@ -27,8 +40,18 @@ export class AdminBrandController {
   @Patch('/:id')
   update(
     @Body() data: UpdateBrandDto,
-    @Param('id') id: string,
+    @Param('id', ParseIntPipe) id: number,
   ): Promise<IdOnlyResponse> {
     return this.adminsService.update({ ...data, id });
+  }
+
+  @ApiOperation({
+    summary: 'Get brand',
+    description: 'Get brand',
+  })
+  @ApiResponse({ status: 200, type: BrandWithLocales })
+  @Get('/:id')
+  getBrand(@Param('id', ParseIntPipe) id: number): Promise<BrandWithLocales> {
+    return this.adminsService.getBrand(id);
   }
 }

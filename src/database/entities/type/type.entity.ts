@@ -15,8 +15,8 @@ export class ProductType extends BaseEntity {
   @JoinColumn({
     name: 'description',
   })
-  @Column({ nullable: true })
-  description?: number;
+  @Column()
+  description: number;
 
   @Column({ nullable: true })
   image?: string;

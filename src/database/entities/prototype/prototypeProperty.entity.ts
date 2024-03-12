@@ -23,6 +23,6 @@ export class PrototypeProperty extends BaseEntity {
   @JoinColumn({
     name: 'suffix',
   })
-  @Column({ nullable: true })
+  @Column()
   suffix: number;
 }
