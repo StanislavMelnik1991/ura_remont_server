@@ -2,9 +2,9 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
 import { typeOrmConfig } from 'database';
-import { LocalizedModule } from './localized';
+import { BrandModule } from './brand';
+import { TypeModule } from './type';
 import { AuthModule } from './auth';
-import { AdminModule } from './admin';
 
 @Module({
   controllers: [],
@@ -21,8 +21,8 @@ import { AdminModule } from './admin';
         expiresIn: '24h',
       },
     }),
-    AdminModule,
-    LocalizedModule,
+    BrandModule,
+    TypeModule,
     AuthModule,
   ],
 })

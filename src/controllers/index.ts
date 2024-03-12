@@ -1,3 +1,4 @@
 export * from './auth';
-export * from './admin';
+export * from './type';
 export * from './staff';
+export * from './brand';

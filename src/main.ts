@@ -10,7 +10,7 @@ async function start() {
   });
   app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
-    .setTitle('URA_REMONT_SERVER')
+    .setTitle('"URA REMONT" SERVER')
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);

@@ -8,9 +8,11 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { AdminTypeService } from 'services/admin';
+import { TypeProperty } from 'database';
+import { TypeService } from 'services';
 import {
   CreateTypeDto,
+  CreateTypePropertyDto,
   IdOnlyResponse,
   TypeWithLocales,
   UpdateTypeDto,
@@ -19,8 +21,8 @@ import {
 @ApiTags('Admins commands', 'Type')
 // @UseGuards(AdminRoleGuard)
 @Controller('api/admin/type')
-export class AdminTypeController {
-  constructor(private adminsService: AdminTypeService) {}
+export class TypeController {
+  constructor(private adminsService: TypeService) {}
 
   @ApiOperation({
     summary: 'Create type',
@@ -46,12 +48,37 @@ export class AdminTypeController {
   }
 
   @ApiOperation({
-    summary: 'Get brand',
-    description: 'Get brand',
+    summary: 'Get type',
+    description: 'Get type',
   })
   @ApiResponse({ status: 200, type: TypeWithLocales })
   @Get('/:id')
-  getBrand(@Param('id', ParseIntPipe) id: number): Promise<TypeWithLocales> {
+  getType(@Param('id', ParseIntPipe) id: number): Promise<TypeWithLocales> {
     return this.adminsService.getType(id);
+  }
+
+  @ApiOperation({
+    summary: 'Get type properties',
+    description: 'Get type properties',
+  })
+  @ApiResponse({ status: 200, type: [TypeWithLocales] })
+  @Get('/:id/properties')
+  getProperties(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<TypeProperty[]> {
+    return this.adminsService.getProperties(id);
+  }
+
+  @ApiOperation({
+    summary: 'Create type properties',
+    description: 'Create type properties',
+  })
+  @ApiResponse({ status: 200, type: IdOnlyResponse })
+  @Post('/:id/properties')
+  createProperty(
+    @Body() data: CreateTypePropertyDto,
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<IdOnlyResponse> {
+    return this.adminsService.createProperty({ ...data, typeId: id });
   }
 }
