@@ -1,11 +1,11 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brand, Dictionary, ProductPrototype, ProductType } from 'database';
 import { CharacteristicValueService } from 'modules/characteristicValues/characteristicValue.service';
 import { PropertyService } from 'modules/property/property.service';
 import { TypeService } from 'modules/type/type.service';
 import { AcceptedLanguagesEnum } from 'shared/constants';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
+import { Brand, Dictionary, ProductPrototype, ProductType } from 'database';
 
 @Injectable()
 export class PrototypeService {
@@ -35,6 +35,7 @@ export class PrototypeService {
     await queryRunner.startTransaction();
 
     try {
+      // ToDo remove Type and Brand
       const [brand, type] = await Promise.all([
         queryRunner.manager.findOneBy(Brand, { id: brandId }),
         queryRunner.manager.findOneBy(ProductType, { id: typeId }),
