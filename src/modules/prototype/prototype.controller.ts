@@ -12,9 +12,8 @@ import { PrototypeProperty } from 'database';
 import { PrototypeService } from './prototype.service';
 import {
   CreatePrototypePropertyDto,
-  CreateTypePropertyValueDto,
   IdOnlyResponse,
-  PrototypeWithLocales,
+  ProductPrototypeResponse,
   UpdatePrototypeDto,
   CreatePrototypeDto,
   TypePropertyValueResponse,
@@ -53,11 +52,11 @@ export class PrototypeController {
     summary: 'Get prototype',
     description: 'Get prototype',
   })
-  @ApiResponse({ status: 200, type: PrototypeWithLocales })
+  @ApiResponse({ status: 200, type: ProductPrototypeResponse })
   @Get('/:id')
   getType(
     @Param('id', ParseIntPipe) id: number,
-  ): Promise<PrototypeWithLocales> {
+  ): Promise<ProductPrototypeResponse> {
     return this.service.getPrototype(id);
   }
 
@@ -65,7 +64,7 @@ export class PrototypeController {
     summary: 'Get prototype properties',
     description: 'Get prototype properties',
   })
-  @ApiResponse({ status: 200, type: [PrototypeWithLocales] })
+  @ApiResponse({ status: 200, type: [ProductPrototypeResponse] })
   @Get('/:id/properties')
   getProperties(
     @Param('id', ParseIntPipe) id: number,
@@ -76,7 +75,7 @@ export class PrototypeController {
     summary: 'Get prototype properties',
     description: 'Get prototype properties',
   })
-  @ApiResponse({ status: 200, type: [PrototypeWithLocales] })
+  @ApiResponse({ status: 200, type: [ProductPrototypeResponse] })
   @Get('/:id/values')
   getValues(
     @Param('id', ParseIntPipe) id: number,
@@ -95,19 +94,5 @@ export class PrototypeController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<IdOnlyResponse> {
     return this.service.createProperty({ ...data, prototypeId: id });
-  }
-
-  @ApiOperation({
-    summary: 'Create prototype property',
-    description: 'Create prototype property',
-  })
-  @ApiResponse({ status: 200, type: IdOnlyResponse })
-  @Post('/:prototypeId/property/:propertyId/')
-  createValue(
-    @Body() { value }: CreateTypePropertyValueDto,
-    @Param('prototypeId', ParseIntPipe) prototypeId: number,
-    @Param('propertyId', ParseIntPipe) propertyId: number,
-  ): Promise<IdOnlyResponse> {
-    return this.service.createValue({ value, propertyId, prototypeId });
   }
 }

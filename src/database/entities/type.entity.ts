@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from '../base.entity';
-import { Dictionary } from '..';
+import { BaseEntity } from './base.entity';
+import { Dictionary } from './dictionary.entity';
 
 @Entity('types')
 export class ProductType extends BaseEntity {

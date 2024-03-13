@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Dictionary, ProductType, TypeProperty } from 'database';
+import { Dictionary, ProductType } from 'database';
+import { CharacteristicService } from 'modules/characteristic/characteristic.service';
 import { AcceptedLanguagesEnum } from 'shared/constants';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
 
@@ -8,12 +9,12 @@ import { Repository, DataSource, UpdateResult } from 'typeorm';
 export class TypeService {
   constructor(
     private dataSource: DataSource,
+    private characteristicService: CharacteristicService,
+
     @InjectRepository(Dictionary)
     private dictionaryRepository: Repository<Dictionary>,
     @InjectRepository(ProductType)
     private typeRepository: Repository<ProductType>,
-    @InjectRepository(TypeProperty)
-    private propertyRepository: Repository<TypeProperty>,
   ) {}
   async create({ description, name }: CreationProps) {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -113,63 +114,14 @@ export class TypeService {
     };
   }
 
-  async createProperty({
-    name,
-    suffix,
-    typeId,
-    display,
-    isFilter,
-  }: CreationPropertyProps) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      const newName = queryRunner.manager.create(Dictionary, {
-        ru: name,
-      });
-      const newSuffix = queryRunner.manager.create(Dictionary, {
-        ru: suffix,
-      });
-      const [savedName, savedSuffix] = await Promise.all([
-        queryRunner.manager.save(Dictionary, newName),
-        queryRunner.manager.save(Dictionary, newSuffix),
-      ]);
-      const typeProperty = queryRunner.manager.create(TypeProperty, {
-        typeId,
-        name: savedName.id,
-        suffix: savedSuffix.id,
-        display,
-        isFilter,
-      });
-      await queryRunner.manager.save(TypeProperty, typeProperty);
-
-      await queryRunner.commitTransaction();
-      return { id: typeProperty.id };
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
-    } finally {
-      await queryRunner.release();
-    }
-  }
-
-  getProperties(id: number) {
-    return this.propertyRepository.findBy({ typeId: id });
+  findProperties(typeId: number) {
+    return this.characteristicService.findByTypeId(typeId);
   }
 }
 
 type CreationProps = {
   name: string;
   description?: string;
-};
-
-type CreationPropertyProps = {
-  typeId: number;
-  name: string;
-  suffix: string;
-  isFilter?: boolean;
-  display?: boolean;
 };
 
 type UpdateProps = {

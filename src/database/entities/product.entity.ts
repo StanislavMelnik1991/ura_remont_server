@@ -1,6 +1,6 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from '../base.entity';
-import { ProductPrototype } from '..';
+import { BaseEntity } from './base.entity';
+import { ProductPrototype } from './prototype.entity';
 
 @Entity('products')
 export class Product extends BaseEntity {
@@ -8,14 +8,14 @@ export class Product extends BaseEntity {
   @JoinColumn({
     name: 'prototypeId',
   })
-  @Column()
+  @Column({ nullable: true })
   prototypeId: number;
 
-  @Column()
+  @Column({ unique: true })
   externalId: string;
 
-  @Column()
-  externalName: string;
+  @Column({ nullable: true })
+  externalName?: string;
 
   @Column()
   availableQuantity: number;
@@ -23,9 +23,9 @@ export class Product extends BaseEntity {
   @Column()
   price: number;
 
-  @Column({ nullable: true })
+  @Column({ default: 0 })
   soldQuantity: number;
 
-  @Column({ nullable: true })
+  @Column({ default: 0 })
   pendingQuantity: number;
 }

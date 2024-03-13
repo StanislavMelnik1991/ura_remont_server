@@ -8,11 +8,9 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { TypeProperty } from 'database';
 import { TypeService } from './type.service';
 import {
   CreateTypeDto,
-  CreateTypePropertyDto,
   IdOnlyResponse,
   TypeWithLocales,
   UpdateTypeDto,
@@ -55,30 +53,5 @@ export class TypeController {
   @Get('/:id')
   getType(@Param('id', ParseIntPipe) id: number): Promise<TypeWithLocales> {
     return this.service.getType(id);
-  }
-
-  @ApiOperation({
-    summary: 'Get type properties',
-    description: 'Get type properties',
-  })
-  @ApiResponse({ status: 200, type: [TypeWithLocales] })
-  @Get('/:id/properties')
-  getProperties(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<TypeProperty[]> {
-    return this.service.getProperties(id);
-  }
-
-  @ApiOperation({
-    summary: 'Create type properties',
-    description: 'Create type properties',
-  })
-  @ApiResponse({ status: 200, type: IdOnlyResponse })
-  @Post('/:id/properties')
-  createProperty(
-    @Body() data: CreateTypePropertyDto,
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<IdOnlyResponse> {
-    return this.service.createProperty({ ...data, typeId: id });
   }
 }

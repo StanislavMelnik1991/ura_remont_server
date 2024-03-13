@@ -1,11 +1,11 @@
-import { Column, Entity, JoinColumn, OneToOne, ManyToOne } from 'typeorm';
-import { BaseEntity } from '../base.entity';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { BaseEntity } from './base.entity';
 import { PrototypeProperty } from './prototypeProperty.entity';
-import { Product } from '..';
+import { Product } from './product.entity';
 
-@Entity('prototype_property_values')
-export class PrototypePropertyValue extends BaseEntity {
-  @OneToOne(() => Product, (dict) => dict.id)
+@Entity('property_values')
+export class PropertyValue extends BaseEntity {
+  @ManyToOne(() => Product, (dict) => dict.id)
   @JoinColumn({
     name: 'productId',
   })

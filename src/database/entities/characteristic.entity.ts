@@ -1,16 +1,16 @@
 import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from '../base.entity';
-import { Dictionary } from '..';
-import { ProductPrototype } from './prototype.entity';
+import { BaseEntity } from './base.entity';
+import { Dictionary } from './dictionary.entity';
+import { ProductType } from './type.entity';
 
-@Entity('prototype_properties')
-export class PrototypeProperty extends BaseEntity {
-  @ManyToOne(() => ProductPrototype, (dict) => dict.id)
+@Entity('characteristics')
+export class Characteristic extends BaseEntity {
+  @ManyToOne(() => ProductType, (dict) => dict.id)
   @JoinColumn({
-    name: 'prototypeId',
+    name: 'typeId',
   })
   @Column()
-  prototypeId: number;
+  typeId: number;
 
   @ManyToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({

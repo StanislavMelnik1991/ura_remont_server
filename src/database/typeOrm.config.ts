@@ -7,9 +7,9 @@ import {
   ProductType,
   PrototypeProperty,
   PrototypePropertyValue,
-  TypeProperty,
-  TypePropertyValue,
-} from './entities';
+  Characteristic,
+  CharacteristicValue,
+} from './';
 
 export const typeOrmConfig = () => {
   const host = process.env.POSTGRES_HOST;
@@ -32,8 +32,8 @@ export const typeOrmConfig = () => {
       ProductType,
       PrototypeProperty,
       PrototypePropertyValue,
-      TypeProperty,
-      TypePropertyValue,
+      Characteristic,
+      CharacteristicValue,
     ],
     logging: false,
     synchronize: true,

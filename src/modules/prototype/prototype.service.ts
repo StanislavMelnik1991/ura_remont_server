@@ -1,14 +1,9 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  Brand,
-  Dictionary,
-  ProductPrototype,
-  ProductType,
-  PrototypeProperty,
-  TypeProperty,
-  TypePropertyValue,
-} from 'database';
+import { Brand, Dictionary, ProductPrototype, ProductType } from 'database';
+import { CharacteristicValueService } from 'modules/characteristicValues/characteristicValue.service';
+import { PropertyService } from 'modules/property/property.service';
+import { TypeService } from 'modules/type/type.service';
 import { AcceptedLanguagesEnum } from 'shared/constants';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
 
@@ -17,14 +12,9 @@ export class PrototypeService {
   constructor(
     private dataSource: DataSource,
 
-    @InjectRepository(PrototypeProperty)
-    private propertyRepository: Repository<PrototypeProperty>,
-
-    @InjectRepository(TypePropertyValue)
-    private valueRepository: Repository<TypePropertyValue>,
-
-    @InjectRepository(TypeProperty)
-    private typePropertyRepository: Repository<TypeProperty>,
+    private propertyService: PropertyService,
+    private characteristicValueService: CharacteristicValueService,
+    private typeService: TypeService,
 
     @InjectRepository(ProductPrototype)
     private prototypeRepository: Repository<ProductPrototype>,
@@ -32,6 +22,13 @@ export class PrototypeService {
     @InjectRepository(Dictionary)
     private dictionaryRepository: Repository<Dictionary>,
   ) {}
+  findByIdOrFail(id: number) {
+    try {
+      return this.prototypeRepository.findOneByOrFail({ id });
+    } catch (error) {
+      throw new HttpException({ prototype: 'not found' }, HttpStatus.NOT_FOUND);
+    }
+  }
   async create({ description, name, brandId, typeId, image }: CreationProps) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -133,13 +130,7 @@ export class PrototypeService {
     if (!entity) {
       throw new HttpException({ prototype: 'not found' }, HttpStatus.NOT_FOUND);
     }
-    const {
-      name: nameId,
-      description: descriptionId,
-      image,
-      brandId,
-      typeId,
-    } = entity;
+    const { name: nameId, description: descriptionId } = entity;
 
     const [name, description] = await Promise.all([
       this.dictionaryRepository.findOneBy({ id: nameId }),
@@ -149,91 +140,20 @@ export class PrototypeService {
     ]);
 
     return {
-      id,
+      ...entity,
       name,
       description,
-      image,
-      brandId,
-      typeId,
     };
   }
 
-  async createProperty({
-    name,
-    suffix,
-    prototypeId,
-    display,
-    isFilter,
-  }: CreationPropertyProps) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+  async createProperty(props: CreationPropertyProps) {
+    await this.findByIdOrFail(props.prototypeId);
 
-    try {
-      const newName = queryRunner.manager.create(Dictionary, {
-        ru: name,
-      });
-      const newSuffix = queryRunner.manager.create(Dictionary, {
-        ru: suffix,
-      });
-      const [savedName, savedSuffix] = await Promise.all([
-        queryRunner.manager.save(Dictionary, newName),
-        queryRunner.manager.save(Dictionary, newSuffix),
-      ]);
-      const entity = queryRunner.manager.create(PrototypeProperty, {
-        prototypeId,
-        name: savedName.id,
-        suffix: savedSuffix.id,
-        display,
-        isFilter,
-      });
-      await queryRunner.manager.save(PrototypeProperty, entity);
-
-      await queryRunner.commitTransaction();
-      return { id: entity.id };
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
-    } finally {
-      await queryRunner.release();
-    }
+    return this.propertyService.create(props);
   }
 
-  async createValue({ propertyId, prototypeId, value }: CreationValueProps) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-
-    try {
-      const { manager } = queryRunner;
-      const property = await manager.findOneBy(TypeProperty, {
-        id: propertyId,
-      });
-      if (!property) {
-        throw new HttpException(
-          { property: 'not found' },
-          HttpStatus.NOT_FOUND,
-        );
-      }
-      const entity = manager.create(TypePropertyValue, {
-        propertyId,
-        prototypeId,
-        value,
-      });
-      await manager.save(TypePropertyValue, entity);
-
-      await queryRunner.commitTransaction();
-      return { id: entity.id };
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
-    } finally {
-      await queryRunner.release();
-    }
-  }
-
-  getProperties(id: number) {
-    return this.propertyRepository.findBy({ prototypeId: id });
+  getProperties(prototypeId: number) {
+    return this.propertyService.findByPrototypeId(prototypeId);
   }
 
   async getValues(prototypeId: number) {
@@ -243,14 +163,13 @@ export class PrototypeService {
     if (!prototype) {
       throw new HttpException({ prototype: 'not found' }, HttpStatus.NOT_FOUND);
     }
-    const properties = await this.typePropertyRepository.findBy({
-      typeId: prototype.typeId,
-    });
+    const properties = await this.typeService.findProperties(prototype.typeId);
+
     return Promise.all(
       properties.map(async (el) => {
         const [value, name, suffix] = await Promise.all([
-          this.valueRepository.findOneBy({
-            propertyId: el.id,
+          this.characteristicValueService.findByPrototypeAndCharacteristic({
+            characteristicId: el.id,
             prototypeId,
           }),
           this.dictionaryRepository.findOneBy({ id: el.name }),
@@ -289,10 +208,4 @@ type CreationPropertyProps = {
   suffix: string;
   isFilter?: boolean;
   display?: boolean;
-};
-
-type CreationValueProps = {
-  propertyId: number;
-  prototypeId: number;
-  value: string;
 };
