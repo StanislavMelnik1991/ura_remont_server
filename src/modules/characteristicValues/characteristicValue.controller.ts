@@ -19,6 +19,6 @@ export class CharacteristicValueController {
     @Param('prototypeId', ParseIntPipe) prototypeId: number,
     @Param('characteristicId', ParseIntPipe) characteristicId: number,
   ): Promise<IdOnlyResponse> {
-    return this.service.createValue({ value, characteristicId, prototypeId });
+    return this.service.setValue({ value, characteristicId, prototypeId });
   }
 }

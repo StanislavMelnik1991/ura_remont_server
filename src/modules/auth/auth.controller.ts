@@ -1,20 +1,28 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { LocaleParamsDto } from 'shared/schemas';
+import { SingUpDto, TokenResponse } from 'shared/schemas';
 
-@ApiTags('Auth')
-@Controller('api/:locale')
+@ApiTags('Authorization')
+@Controller('api/auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
   @ApiOperation({
-    summary: 'Update existed translation',
-    description: 'Only for staff',
+    summary: 'Registration user',
   })
-  @ApiResponse({ status: 200, type: String })
-  @Get('/locale')
-  update(@Param() { locale }: LocaleParamsDto) {
-    return { locale };
+  @ApiResponse({ status: 200, type: TokenResponse })
+  @Post('/registration')
+  signup(@Body() data: SingUpDto) {
+    return this.authService.create(data);
+  }
+
+  @ApiOperation({
+    summary: 'Authorization user',
+  })
+  @ApiResponse({ status: 200, type: TokenResponse })
+  @Post('/authorization')
+  login(@Body() data: SingUpDto) {
+    return this.authService.login(data);
   }
 }

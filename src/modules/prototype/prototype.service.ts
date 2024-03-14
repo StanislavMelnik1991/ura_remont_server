@@ -2,10 +2,13 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CharacteristicValueService } from 'modules/characteristicValues/characteristicValue.service';
 import { PropertyService } from 'modules/property/property.service';
-import { TypeService } from 'modules/type/type.service';
 import { AcceptedLanguagesEnum } from 'shared/constants';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
-import { Brand, Dictionary, ProductPrototype, ProductType } from 'database';
+import { DictionaryService } from 'modules/dictionary/dictionary.service';
+import { ProductService } from 'modules/product/product.service';
+import { Dictionary, ProductPrototype } from 'database';
+import { BrandService } from 'modules/brand';
+import { TypeService } from 'modules/type';
 
 @Injectable()
 export class PrototypeService {
@@ -13,14 +16,14 @@ export class PrototypeService {
     private dataSource: DataSource,
 
     private propertyService: PropertyService,
-    private characteristicValueService: CharacteristicValueService,
+    private dictionaryService: DictionaryService,
+    private valueService: CharacteristicValueService,
+    private productService: ProductService,
+    private brandService: BrandService,
     private typeService: TypeService,
 
     @InjectRepository(ProductPrototype)
     private prototypeRepository: Repository<ProductPrototype>,
-
-    @InjectRepository(Dictionary)
-    private dictionaryRepository: Repository<Dictionary>,
   ) {}
   findByIdOrFail(id: number) {
     try {
@@ -30,22 +33,15 @@ export class PrototypeService {
     }
   }
   async create({ description, name, brandId, typeId, image }: CreationProps) {
+    await Promise.all([
+      this.typeService.findByIdOrFail(typeId),
+      this.brandService.findByIdOrFail(brandId),
+    ]);
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
 
     try {
-      // ToDo remove Type and Brand
-      const [brand, type] = await Promise.all([
-        queryRunner.manager.findOneBy(Brand, { id: brandId }),
-        queryRunner.manager.findOneBy(ProductType, { id: typeId }),
-      ]);
-      if (!brand) {
-        throw new HttpException({ brand: 'not found' }, HttpStatus.NOT_FOUND);
-      }
-      if (!type) {
-        throw new HttpException({ type: 'not found' }, HttpStatus.NOT_FOUND);
-      }
       const newName = queryRunner.manager.create(Dictionary, {
         ru: name,
         be: name,
@@ -76,7 +72,7 @@ export class PrototypeService {
       if (err instanceof HttpException) {
         throw new HttpException(err.getResponse(), err.getStatus());
       }
-      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
     } finally {
       await queryRunner.release();
     }
@@ -120,7 +116,7 @@ export class PrototypeService {
       if (err instanceof HttpException) {
         throw new HttpException(err.getResponse(), err.getStatus());
       }
-      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
     } finally {
       await queryRunner.release();
     }
@@ -134,10 +130,8 @@ export class PrototypeService {
     const { name: nameId, description: descriptionId } = entity;
 
     const [name, description] = await Promise.all([
-      this.dictionaryRepository.findOneBy({ id: nameId }),
-      this.dictionaryRepository.findOneBy({
-        id: descriptionId,
-      }),
+      this.dictionaryService.findById(nameId),
+      this.dictionaryService.findById(descriptionId),
     ]);
 
     return {
@@ -169,12 +163,12 @@ export class PrototypeService {
     return Promise.all(
       properties.map(async (el) => {
         const [value, name, suffix] = await Promise.all([
-          this.characteristicValueService.findByPrototypeAndCharacteristic({
+          this.valueService.findByPrototypeAndCharacteristic({
             characteristicId: el.id,
             prototypeId,
           }),
-          this.dictionaryRepository.findOneBy({ id: el.name }),
-          this.dictionaryRepository.findOneBy({ id: el.suffix }),
+          this.dictionaryService.findById(el.name),
+          this.dictionaryService.findById(el.suffix),
         ]);
         return {
           id: el.id,

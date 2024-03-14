@@ -2,6 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dictionary, ProductType } from 'database';
 import { CharacteristicService } from 'modules/characteristic/characteristic.service';
+import { DictionaryService } from 'modules/dictionary/dictionary.service';
 import { AcceptedLanguagesEnum } from 'shared/constants';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
 
@@ -10,9 +11,8 @@ export class TypeService {
   constructor(
     private dataSource: DataSource,
     private characteristicService: CharacteristicService,
+    private dictionaryService: DictionaryService,
 
-    @InjectRepository(Dictionary)
-    private dictionaryRepository: Repository<Dictionary>,
     @InjectRepository(ProductType)
     private typeRepository: Repository<ProductType>,
   ) {}
@@ -42,7 +42,7 @@ export class TypeService {
       return { id: newType.id };
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
     } finally {
       await queryRunner.release();
     }
@@ -86,24 +86,19 @@ export class TypeService {
       if (err instanceof HttpException) {
         throw new HttpException(err.getResponse(), err.getStatus());
       }
-      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
     } finally {
       await queryRunner.release();
     }
   }
 
   async getType(id: number) {
-    const productType = await this.typeRepository.findOneBy({ id });
-    if (!productType) {
-      throw new HttpException({ type: 'not found' }, HttpStatus.NOT_FOUND);
-    }
+    const productType = await this.findByIdOrFail(id);
     const { name: nameId, description: descriptionId, image } = productType;
 
     const [name, description] = await Promise.all([
-      this.dictionaryRepository.findOneBy({ id: nameId }),
-      this.dictionaryRepository.findOneBy({
-        id: descriptionId,
-      }),
+      this.dictionaryService.findById(nameId),
+      this.dictionaryService.findById(descriptionId),
     ]);
 
     return {
@@ -116,6 +111,13 @@ export class TypeService {
 
   findProperties(typeId: number) {
     return this.characteristicService.findByTypeId(typeId);
+  }
+  async findByIdOrFail(id: number) {
+    try {
+      return await this.typeRepository.findOneByOrFail({ id });
+    } catch (error) {
+      throw new HttpException({ type: 'not found' }, HttpStatus.NOT_FOUND);
+    }
   }
 }
 

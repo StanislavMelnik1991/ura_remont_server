@@ -7,13 +7,9 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { Characteristic } from 'database';
 import { CharacteristicService } from './characteristic.service';
-import {
-  CreateTypePropertyDto,
-  IdOnlyResponse,
-  TypeWithLocales,
-} from 'shared/schemas';
+import { Characteristic } from 'database';
+import { CreateTypePropertyDto, IdOnlyResponse } from 'shared/schemas';
 
 @ApiTags('Admins commands', 'Characteristics')
 @Controller('api/admin/type/:typeId/characteristics')
@@ -24,7 +20,7 @@ export class CharacteristicController {
     summary: 'Get characteristics for type',
     description: 'Get characteristics for type',
   })
-  @ApiResponse({ status: 200, type: [TypeWithLocales] })
+  @ApiResponse({ status: 200, type: [Characteristic] })
   @Get('/')
   getCharacteristics(
     @Param('typeId', ParseIntPipe) typeId: number,

@@ -1,22 +1,26 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { ProductPrototype, Dictionary } from 'database';
 import { PrototypeService } from './prototype.service';
 import { PrototypeController } from './prototype.controller';
-import { PropertyModule } from 'modules/property/property.module';
 import { CharacteristicValueModule } from 'modules/characteristicValues/characteristicValue.module';
-import { TypeModule } from 'modules/type/type.module';
-import { BrandModule } from 'modules/brand/brand.module';
+import { PropertyModule } from 'modules/property/property.module';
+import { ProductModule } from 'modules/product/product.module';
+import { DictionaryModule } from 'modules/dictionary/dictionary.module';
+import { ProductPrototype } from 'database';
+import { TypeModule } from 'modules/type';
+import { BrandModule } from 'modules/brand';
 
 @Module({
   controllers: [PrototypeController],
   providers: [PrototypeService],
   imports: [
-    TypeOrmModule.forFeature([ProductPrototype, Dictionary]),
-    PropertyModule,
+    TypeOrmModule.forFeature([ProductPrototype]),
     CharacteristicValueModule,
-    TypeModule,
+    PropertyModule,
+    ProductModule,
+    DictionaryModule,
     BrandModule,
+    TypeModule,
   ],
   exports: [PrototypeService],
 })

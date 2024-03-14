@@ -1,42 +1,29 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { PropertyValue } from 'database/entities/propertyValue.entity';
-import { PropertyService } from 'modules/property/property.service';
-import { DataSource, Repository } from 'typeorm';
+import { PropertyValue } from 'database';
+import { Repository } from 'typeorm';
 
 @Injectable()
 export class PropertyValueService {
   constructor(
-    private dataSource: DataSource,
-    private propertyService: PropertyService,
-
     @InjectRepository(PropertyValue)
     private valueRepository: Repository<PropertyValue>,
   ) {}
 
-  async createValue({ productId, propertyId, value }: CreationValueProps) {
-    const queryRunner = this.dataSource.createQueryRunner();
-    await this.propertyService.findByIdOrFail(propertyId);
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
+  async setValue({ value, ...props }: CreationValueProps) {
+    let entity = await this.valueRepository.findOneBy(props);
+    if (!entity) {
+      entity = this.valueRepository.create({ ...props, value });
+    } else {
+      entity.value = value;
+    }
 
     try {
-      const { manager } = queryRunner;
-      const entity = manager.create(PropertyValue, {
-        productId,
-        propertyId,
-        value,
-      });
-      await manager.save(PropertyValue, entity);
-
-      await queryRunner.commitTransaction();
-      return { id: entity.id };
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
-    } finally {
-      await queryRunner.release();
+      await this.valueRepository.save(entity);
+    } catch (error) {
+      throw new HttpException(error.detail, HttpStatus.INTERNAL_SERVER_ERROR);
     }
+    return { id: entity.id };
   }
 
   findByPrototypeAndCharacteristic(props: {

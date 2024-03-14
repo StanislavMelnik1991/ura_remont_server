@@ -1,15 +1,16 @@
 import { TypeOrmModule } from '@nestjs/typeorm';
 import {
   Brand,
+  Characteristic,
+  CharacteristicValue,
   Dictionary,
   Product,
   ProductPrototype,
   ProductType,
+  PropertyValue,
   PrototypeProperty,
-  PrototypePropertyValue,
-  Characteristic,
-  CharacteristicValue,
-} from './';
+  User,
+} from './entities';
 
 export const typeOrmConfig = () => {
   const host = process.env.POSTGRES_HOST;
@@ -31,9 +32,10 @@ export const typeOrmConfig = () => {
       ProductPrototype,
       ProductType,
       PrototypeProperty,
-      PrototypePropertyValue,
+      PropertyValue,
       Characteristic,
       CharacteristicValue,
+      User,
     ],
     logging: false,
     synchronize: true,

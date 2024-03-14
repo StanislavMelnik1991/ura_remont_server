@@ -1,12 +1,16 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Dictionary, ProductType, Characteristic } from 'database';
+import { Characteristic, Dictionary, ProductType } from 'database';
+import { DictionaryService } from 'modules/dictionary/dictionary.service';
 import { Repository, DataSource } from 'typeorm';
 
 @Injectable()
 export class CharacteristicService {
   constructor(
     private dataSource: DataSource,
+
+    private dictionaryService: DictionaryService,
+
     @InjectRepository(Characteristic)
     private characteristicRepository: Repository<Characteristic>,
   ) {}
@@ -26,10 +30,7 @@ export class CharacteristicService {
       const { manager } = queryRunner;
       const notFound = !(await manager.findOneBy(ProductType, { id: typeId }));
       if (notFound) {
-        throw new HttpException(
-          { type: 'not found' },
-          HttpStatus.INTERNAL_SERVER_ERROR,
-        );
+        throw new HttpException({ type: 'not found' }, HttpStatus.NOT_FOUND);
       }
       const newName = manager.create(Dictionary, {
         ru: name,
@@ -54,7 +55,7 @@ export class CharacteristicService {
       return { id: entity.id };
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
     } finally {
       await queryRunner.release();
     }
@@ -70,7 +71,7 @@ export class CharacteristicService {
     } catch (error) {
       throw new HttpException(
         { characteristic: 'not found' },
-        HttpStatus.INTERNAL_SERVER_ERROR,
+        HttpStatus.NOT_FOUND,
       );
     }
   }

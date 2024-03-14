@@ -8,7 +8,11 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { DictionaryService } from './dictionary.service';
-import { IdOnlyResponse, UpdateDictionaryDto } from 'shared/schemas';
+import {
+  IdOnlyResponse,
+  LocaleParamsDto,
+  UpdateDictionaryDto,
+} from 'shared/schemas';
 
 @ApiTags('Translation')
 @Controller('api/translation')
@@ -46,5 +50,16 @@ export class DictionaryController {
   @Get('/:id')
   find(@Param('id', ParseIntPipe) id: number): Promise<IdOnlyResponse> {
     return this.service.findById(id);
+  }
+
+  @ApiOperation({
+    summary: 'Update existed translation',
+    description: 'Only for staff',
+  })
+  @ApiResponse({ status: 200, type: String })
+  @Get('/:locale/locale')
+  localized(@Param() { locale }: LocaleParamsDto) {
+    /*  console.log(routes.admin.type.current.getRoute(1)); */
+    return { locale };
   }
 }

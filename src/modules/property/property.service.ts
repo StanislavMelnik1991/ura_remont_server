@@ -1,12 +1,18 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dictionary, PrototypeProperty } from 'database';
+import { DictionaryService } from 'modules/dictionary/dictionary.service';
+import { PropertyValueService } from 'modules/propertyValue/propertyValue.service';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
 export class PropertyService {
   constructor(
     private dataSource: DataSource,
+
+    private valueService: PropertyValueService,
+    private dictionaryService: DictionaryService,
+
     @InjectRepository(PrototypeProperty)
     private propertyRepository: Repository<PrototypeProperty>,
   ) {}
@@ -45,7 +51,7 @@ export class PropertyService {
       return { id: entity.id };
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
     } finally {
       await queryRunner.release();
     }
@@ -57,10 +63,7 @@ export class PropertyService {
     try {
       return this.propertyRepository.findOneByOrFail({ id });
     } catch (error) {
-      throw new HttpException(
-        { property: 'not found' },
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new HttpException({ property: 'not found' }, HttpStatus.NOT_FOUND);
     }
   }
 }

@@ -1,9 +1,10 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { BaseEntity } from './base.entity';
 import { Characteristic } from './characteristic.entity';
 import { ProductPrototype } from './prototype.entity';
 
 @Entity('characteristic_values')
+@Unique(['prototypeId', 'characteristicId'])
 export class CharacteristicValue extends BaseEntity {
   @ManyToOne(() => ProductPrototype, (dict) => dict.id)
   @JoinColumn({

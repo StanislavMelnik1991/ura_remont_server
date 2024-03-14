@@ -11,6 +11,9 @@ async function start() {
   app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
     .setTitle('"URA REMONT" SERVER')
+    .addBearerAuth({
+      type: 'http',
+    })
     .setVersion('1.0')
     .build();
   const document = SwaggerModule.createDocument(app, config);

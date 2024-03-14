@@ -8,16 +8,16 @@ import {
   Post,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
-import { PrototypeProperty } from 'database';
 import { PrototypeService } from './prototype.service';
 import {
+  CreatePrototypeDto,
   CreatePrototypePropertyDto,
   IdOnlyResponse,
   ProductPrototypeResponse,
-  UpdatePrototypeDto,
-  CreatePrototypeDto,
   TypePropertyValueResponse,
+  UpdatePrototypeDto,
 } from 'shared/schemas';
+import { PrototypeProperty } from 'database';
 
 @ApiTags('Admins commands', 'Prototype')
 // @UseGuards(AdminRoleGuard)
@@ -71,17 +71,6 @@ export class PrototypeController {
   ): Promise<PrototypeProperty[]> {
     return this.service.getProperties(id);
   }
-  @ApiOperation({
-    summary: 'Get prototype properties',
-    description: 'Get prototype properties',
-  })
-  @ApiResponse({ status: 200, type: [ProductPrototypeResponse] })
-  @Get('/:id/values')
-  getValues(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<TypePropertyValueResponse[]> {
-    return this.service.getValues(id);
-  }
 
   @ApiOperation({
     summary: 'Create prototype property',
@@ -94,5 +83,17 @@ export class PrototypeController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<IdOnlyResponse> {
     return this.service.createProperty({ ...data, prototypeId: id });
+  }
+
+  @ApiOperation({
+    summary: 'Get prototype properties',
+    description: 'Get prototype properties',
+  })
+  @ApiResponse({ status: 200, type: [ProductPrototypeResponse] })
+  @Get('/:id/values')
+  getValues(
+    @Param('id', ParseIntPipe) id: number,
+  ): Promise<TypePropertyValueResponse[]> {
+    return this.service.getValues(id);
   }
 }

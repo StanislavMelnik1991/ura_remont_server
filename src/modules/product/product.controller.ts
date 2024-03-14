@@ -8,9 +8,12 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProductService } from './product.service';
-import { IdOnlyResponse } from 'shared/schemas';
-import { CreateProductDto, CreateValueDto } from 'shared/schemas/dto';
-import { UpdateProductDto } from 'shared/schemas/dto/product/update.dto';
+import {
+  CreateProductDto,
+  CreateValueDto,
+  IdOnlyResponse,
+  UpdateProductDto,
+} from 'shared/schemas';
 
 @ApiTags('Admins commands', 'Product')
 @Controller('api/admin/product')

@@ -6,8 +6,14 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { TypeService } from './type.service';
 import {
   CreateTypeDto,
@@ -15,9 +21,14 @@ import {
   TypeWithLocales,
   UpdateTypeDto,
 } from 'shared/schemas';
+import { RolesGuard } from 'guards';
+import { Roles } from 'decorators/roles.decorator';
+import { RolesEnum } from 'shared/constants';
 
 @ApiTags('Admins commands', 'Type')
-// @UseGuards(AdminRoleGuard)
+@Roles(RolesEnum.ADMIN, RolesEnum.USER)
+@UseGuards(RolesGuard)
+@ApiBearerAuth()
 @Controller('api/admin/type')
 export class TypeController {
   constructor(private service: TypeService) {}

@@ -1,6 +1,7 @@
 import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brand, Dictionary } from 'database';
+import { DictionaryService } from 'modules/dictionary/dictionary.service';
 import { AcceptedLanguagesEnum } from 'shared/constants';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
 
@@ -8,10 +9,9 @@ import { Repository, DataSource, UpdateResult } from 'typeorm';
 export class BrandService {
   constructor(
     private dataSource: DataSource,
+    private dictionaryService: DictionaryService,
     @InjectRepository(Brand)
     private brandRepository: Repository<Brand>,
-    @InjectRepository(Dictionary)
-    private dictionaryRepository: Repository<Dictionary>,
   ) {}
   async create({ description, name }: CreationProps) {
     const queryRunner = this.dataSource.createQueryRunner();
@@ -39,7 +39,7 @@ export class BrandService {
       return { id: newBrand.id };
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
     } finally {
       await queryRunner.release();
     }
@@ -81,7 +81,7 @@ export class BrandService {
       if (err instanceof HttpException) {
         throw new HttpException(err.getResponse(), err.getStatus());
       }
-      throw new HttpException(err, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
     } finally {
       await queryRunner.release();
     }
@@ -94,10 +94,8 @@ export class BrandService {
     const { name: nameId, description: descriptionId, image } = brand;
 
     const [name, description] = await Promise.all([
-      this.dictionaryRepository.findOneBy({ id: nameId }),
-      this.dictionaryRepository.findOneBy({
-        id: descriptionId,
-      }),
+      this.dictionaryService.findById(nameId),
+      this.dictionaryService.findById(descriptionId),
     ]);
 
     return {
@@ -106,6 +104,13 @@ export class BrandService {
       description,
       image,
     };
+  }
+  async findByIdOrFail(id: number) {
+    try {
+      return await this.brandRepository.findOneByOrFail({ id });
+    } catch (error) {
+      throw new HttpException({ brand: 'not found' }, HttpStatus.NOT_FOUND);
+    }
   }
 }
 

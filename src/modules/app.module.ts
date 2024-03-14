@@ -1,9 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
-import { JwtModule } from '@nestjs/jwt';
 import { typeOrmConfig } from 'database';
-import { ProductModule } from './product/product.module';
-import { DictionaryModule } from './dictionary/dictionary.module';
+import { PrototypeModule } from './prototype';
 
 @Module({
   controllers: [],
@@ -11,17 +9,9 @@ import { DictionaryModule } from './dictionary/dictionary.module';
   imports: [
     ConfigModule.forRoot({
       envFilePath: `.env`,
-      isGlobal: true,
     }),
     typeOrmConfig(),
-    JwtModule.register({
-      secret: process.env.PRIVATE_KEY,
-      signOptions: {
-        expiresIn: '24h',
-      },
-    }),
-    ProductModule,
-    DictionaryModule,
+    PrototypeModule,
   ],
 })
 export class AppModule {}

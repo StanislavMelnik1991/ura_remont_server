@@ -2,23 +2,22 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from 'database';
 import { PropertyValueService } from 'modules/propertyValue/propertyValue.service';
-import { PrototypeService } from 'modules/prototype/prototype.service';
 import { Repository } from 'typeorm';
 
 @Injectable()
 export class ProductService {
   constructor(
-    private prototypeService: PrototypeService,
     private valueService: PropertyValueService,
+
     @InjectRepository(Product)
     private productRepository: Repository<Product>,
   ) {}
 
-  async create(props: CreationProps) {
-    await this.prototypeService.findByIdOrFail(props.prototypeId);
+  async create({ price, ...props }: CreationProps) {
+    console.log('asd');
     const entity = this.productRepository.create({
       ...props,
-      price: 100 * props.price,
+      price: 100 * price,
     });
     await this.productRepository.save(entity);
     return { id: entity.id };
@@ -43,7 +42,7 @@ export class ProductService {
   }
 
   createValue(props: CreateValueProps) {
-    return this.valueService.createValue(props);
+    return this.valueService.setValue(props);
   }
 }
 
