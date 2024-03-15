@@ -1,8 +1,21 @@
-import { Column, Entity } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
+import { DictionarySchemeType } from 'shared/schemas';
 
 @Entity('dictionaries')
-export class Dictionary extends BaseEntity {
+export class Dictionary implements DictionarySchemeType {
+  @PrimaryGeneratedColumn()
+  id: number;
+  @CreateDateColumn()
+  createdAt: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
+
   @Column({ default: '' })
   ru: string;
 

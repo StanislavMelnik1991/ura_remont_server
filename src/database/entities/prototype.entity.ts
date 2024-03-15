@@ -1,11 +1,26 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Brand } from './brand.entity';
-import { ProductType } from './type.entity';
+import { TypeEntity } from './type.entity';
 import { Dictionary } from './dictionary.entity';
+import { PrototypeSchemeType } from 'shared/schemas';
 
 @Entity('prototypes')
-export class ProductPrototype extends BaseEntity {
+export class ProductPrototype implements PrototypeSchemeType {
+  @PrimaryGeneratedColumn()
+  id: number;
+  @CreateDateColumn()
+  createdAt: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
+
   @ManyToOne(() => Brand, (dict) => dict.id)
   @JoinColumn({
     name: 'brandId',
@@ -13,7 +28,7 @@ export class ProductPrototype extends BaseEntity {
   @Column()
   brandId: number;
 
-  @ManyToOne(() => ProductType, (dict) => dict.id)
+  @ManyToOne(() => TypeEntity, (dict) => dict.id)
   @JoinColumn({
     name: 'typeId',
   })
@@ -33,7 +48,4 @@ export class ProductPrototype extends BaseEntity {
   })
   @Column()
   description: number;
-
-  @Column({ nullable: true })
-  image: string;
 }

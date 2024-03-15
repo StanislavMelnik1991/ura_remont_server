@@ -123,22 +123,7 @@ export class PrototypeService {
   }
 
   async getPrototype(id: number) {
-    const entity = await this.prototypeRepository.findOneBy({ id });
-    if (!entity) {
-      throw new HttpException({ prototype: 'not found' }, HttpStatus.NOT_FOUND);
-    }
-    const { name: nameId, description: descriptionId } = entity;
-
-    const [name, description] = await Promise.all([
-      this.dictionaryService.findById(nameId),
-      this.dictionaryService.findById(descriptionId),
-    ]);
-
-    return {
-      ...entity,
-      name,
-      description,
-    };
+    return this.prototypeRepository.findOneBy({ id });
   }
 
   async createProperty(props: CreationPropertyProps) {

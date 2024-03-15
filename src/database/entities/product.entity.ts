@@ -1,9 +1,24 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { ProductPrototype } from './prototype.entity';
+import { ProductSchemeType } from 'shared/schemas';
 
 @Entity('products')
-export class Product extends BaseEntity {
+export class Product implements ProductSchemeType {
+  @PrimaryGeneratedColumn()
+  id: number;
+  @CreateDateColumn()
+  createdAt: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
+
   @ManyToOne(() => ProductPrototype, (dict) => dict.id)
   @JoinColumn({
     name: 'prototypeId',

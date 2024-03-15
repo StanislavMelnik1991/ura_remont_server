@@ -1,7 +1,7 @@
 import { Body, Controller, Post } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { SingUpDto, TokenResponse } from 'shared/schemas';
+import { AuthDto, TokenScheme } from 'shared/schemas';
 
 @ApiTags('Authorization')
 @Controller('api/auth')
@@ -11,18 +11,18 @@ export class AuthController {
   @ApiOperation({
     summary: 'Registration user',
   })
-  @ApiResponse({ status: 200, type: TokenResponse })
+  @ApiResponse({ status: 200, type: TokenScheme })
   @Post('/registration')
-  signup(@Body() data: SingUpDto) {
+  signup(@Body() data: AuthDto) {
     return this.authService.create(data);
   }
 
   @ApiOperation({
     summary: 'Authorization user',
   })
-  @ApiResponse({ status: 200, type: TokenResponse })
+  @ApiResponse({ status: 200, type: TokenScheme })
   @Post('/authorization')
-  login(@Body() data: SingUpDto) {
+  login(@Body() data: AuthDto) {
     return this.authService.login(data);
   }
 }

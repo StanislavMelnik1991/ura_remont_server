@@ -87,23 +87,7 @@ export class BrandService {
     }
   }
   async getBrand(id: number) {
-    const brand = await this.brandRepository.findOneBy({ id });
-    if (!brand) {
-      throw new HttpException({ brand: 'not found' }, HttpStatus.NOT_FOUND);
-    }
-    const { name: nameId, description: descriptionId, image } = brand;
-
-    const [name, description] = await Promise.all([
-      this.dictionaryService.findById(nameId),
-      this.dictionaryService.findById(descriptionId),
-    ]);
-
-    return {
-      id,
-      name,
-      description,
-      image,
-    };
+    return this.brandRepository.findOneBy({ id });
   }
   async findByIdOrFail(id: number) {
     try {

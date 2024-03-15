@@ -9,12 +9,8 @@ import {
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { BrandService } from './brand.service';
-import {
-  BrandWithLocales,
-  CreateBrandDto,
-  IdOnlyResponse,
-  UpdateBrandDto,
-} from 'shared/schemas';
+import { CreateBrandDto, IdOnlyResponse, UpdateBrandDto } from 'shared/schemas';
+import { BrandScheme } from 'shared/schemas';
 
 @ApiTags('Admins commands', 'Brand')
 // @UseGuards(AdminRoleGuard)
@@ -49,9 +45,9 @@ export class BrandController {
     summary: 'Get brand',
     description: 'Get brand',
   })
-  @ApiResponse({ status: 200, type: BrandWithLocales })
+  @ApiResponse({ status: 200, type: BrandScheme })
   @Get('/:id')
-  getBrand(@Param('id', ParseIntPipe) id: number): Promise<BrandWithLocales> {
+  getBrand(@Param('id', ParseIntPipe) id: number): Promise<BrandScheme> {
     return this.service.getBrand(id);
   }
 }

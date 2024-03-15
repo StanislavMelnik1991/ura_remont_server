@@ -15,15 +15,11 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { TypeService } from './type.service';
-import {
-  CreateTypeDto,
-  IdOnlyResponse,
-  TypeWithLocales,
-  UpdateTypeDto,
-} from 'shared/schemas';
+import { CreateTypeDto, IdOnlyResponse, UpdateTypeDto } from 'shared/schemas';
 import { RolesGuard } from 'guards';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesEnum } from 'shared/constants';
+import { TypeScheme } from 'shared/schemas';
 
 @ApiTags('Admins commands', 'Type')
 @Roles(RolesEnum.ADMIN, RolesEnum.USER)
@@ -60,9 +56,9 @@ export class TypeController {
     summary: 'Get type',
     description: 'Get type',
   })
-  @ApiResponse({ status: 200, type: TypeWithLocales })
+  @ApiResponse({ status: 200, type: TypeScheme })
   @Get('/:id')
-  getType(@Param('id', ParseIntPipe) id: number): Promise<TypeWithLocales> {
+  getType(@Param('id', ParseIntPipe) id: number): Promise<TypeScheme> {
     return this.service.getType(id);
   }
 }

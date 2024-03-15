@@ -92,21 +92,8 @@ export class TypeService {
     }
   }
 
-  async getType(id: number) {
-    const productType = await this.findByIdOrFail(id);
-    const { name: nameId, description: descriptionId, image } = productType;
-
-    const [name, description] = await Promise.all([
-      this.dictionaryService.findById(nameId),
-      this.dictionaryService.findById(descriptionId),
-    ]);
-
-    return {
-      id,
-      name,
-      description,
-      image,
-    };
+  getType(id: number) {
+    return this.findByIdOrFail(id);
   }
 
   findProperties(typeId: number) {

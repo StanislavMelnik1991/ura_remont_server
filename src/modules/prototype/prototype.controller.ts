@@ -13,8 +13,7 @@ import {
   CreatePrototypeDto,
   CreatePrototypePropertyDto,
   IdOnlyResponse,
-  ProductPrototypeResponse,
-  TypePropertyValueResponse,
+  PrototypeScheme,
   UpdatePrototypeDto,
 } from 'shared/schemas';
 import { PrototypeProperty } from 'database';
@@ -52,11 +51,9 @@ export class PrototypeController {
     summary: 'Get prototype',
     description: 'Get prototype',
   })
-  @ApiResponse({ status: 200, type: ProductPrototypeResponse })
+  @ApiResponse({ status: 200, type: PrototypeScheme })
   @Get('/:id')
-  getType(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<ProductPrototypeResponse> {
+  getType(@Param('id', ParseIntPipe) id: number): Promise<PrototypeScheme> {
     return this.service.getPrototype(id);
   }
 
@@ -64,7 +61,7 @@ export class PrototypeController {
     summary: 'Get prototype properties',
     description: 'Get prototype properties',
   })
-  @ApiResponse({ status: 200, type: [ProductPrototypeResponse] })
+  @ApiResponse({ status: 200, type: [PrototypeScheme] })
   @Get('/:id/properties')
   getProperties(
     @Param('id', ParseIntPipe) id: number,
@@ -83,17 +80,5 @@ export class PrototypeController {
     @Param('id', ParseIntPipe) id: number,
   ): Promise<IdOnlyResponse> {
     return this.service.createProperty({ ...data, prototypeId: id });
-  }
-
-  @ApiOperation({
-    summary: 'Get prototype properties',
-    description: 'Get prototype properties',
-  })
-  @ApiResponse({ status: 200, type: [ProductPrototypeResponse] })
-  @Get('/:id/values')
-  getValues(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<TypePropertyValueResponse[]> {
-    return this.service.getValues(id);
   }
 }

@@ -56,6 +56,18 @@ export class AuthService {
     return this.jwtService.verify<JwtPayloadType>(token);
   }
 
+  async changeRole({ id, role }: ChangeRoleProps) {
+    try {
+      await this.userRepository.update({ id }, { role });
+      return { id };
+    } catch (error) {
+      throw new HttpException(
+        'INTERNAL_SERVER_ERROR',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
+
   async generateToken({ id, role }: User) {
     const payload: JwtPayloadType = { id, role };
     return {
@@ -70,3 +82,8 @@ type AuthProps = {
 };
 
 type JwtPayloadType = { id: number; role: RolesEnum };
+
+type ChangeRoleProps = {
+  id: number;
+  role: RolesEnum;
+};

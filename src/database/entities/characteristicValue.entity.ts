@@ -1,11 +1,27 @@
-import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  Unique,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Characteristic } from './characteristic.entity';
 import { ProductPrototype } from './prototype.entity';
+import { CharacteristicValueSchemeType } from 'shared/schemas';
 
 @Entity('characteristic_values')
 @Unique(['prototypeId', 'characteristicId'])
-export class CharacteristicValue extends BaseEntity {
+export class CharacteristicValue implements CharacteristicValueSchemeType {
+  @PrimaryGeneratedColumn()
+  id: number;
+  @CreateDateColumn()
+  createdAt: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
+
   @ManyToOne(() => ProductPrototype, (dict) => dict.id)
   @JoinColumn({
     name: 'prototypeId',

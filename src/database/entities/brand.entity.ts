@@ -1,9 +1,24 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
-import { BaseEntity } from './base.entity';
+import {
+  Column,
+  CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
+  UpdateDateColumn,
+} from 'typeorm';
 import { Dictionary } from './dictionary.entity';
+import { BrandSchemeType } from 'shared/schemas/';
 
 @Entity('brands')
-export class Brand extends BaseEntity {
+export class Brand implements BrandSchemeType {
+  @PrimaryGeneratedColumn()
+  id: number;
+  @CreateDateColumn()
+  createdAt: Date;
+  @UpdateDateColumn()
+  updatedAt: Date;
+
   @ManyToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({
     name: 'name',
@@ -17,7 +32,4 @@ export class Brand extends BaseEntity {
   })
   @Column()
   description: number;
-
-  @Column({ nullable: true })
-  image: string;
 }
