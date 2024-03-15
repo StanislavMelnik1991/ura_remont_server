@@ -6,8 +6,14 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { PrototypeService } from './prototype.service';
 import {
   CreatePrototypeDto,
@@ -17,9 +23,14 @@ import {
   UpdatePrototypeDto,
 } from 'shared/schemas';
 import { PrototypeProperty } from 'database';
+import { Roles } from 'decorators/roles.decorator';
+import { RolesEnum } from 'shared/constants';
+import { RolesGuard } from 'guards';
 
 @ApiTags('Admins commands', 'Prototype')
-// @UseGuards(AdminRoleGuard)
+@Roles(RolesEnum.ADMIN)
+@UseGuards(RolesGuard)
+@ApiBearerAuth()
 @Controller('api/admin/prototype')
 export class PrototypeController {
   constructor(private service: PrototypeService) {}

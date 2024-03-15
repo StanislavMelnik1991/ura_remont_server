@@ -6,14 +6,25 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+  ApiBearerAuth,
+} from '@nestjs/swagger';
 import { BrandService } from './brand.service';
 import { CreateBrandDto, IdOnlyResponse, UpdateBrandDto } from 'shared/schemas';
 import { BrandScheme } from 'shared/schemas';
+import { Roles } from 'decorators/roles.decorator';
+import { RolesEnum } from 'shared/constants';
+import { RolesGuard } from 'guards';
 
 @ApiTags('Admins commands', 'Brand')
-// @UseGuards(AdminRoleGuard)
+@Roles(RolesEnum.ADMIN)
+@UseGuards(RolesGuard)
+@ApiBearerAuth()
 @Controller('api/admin/brand')
 export class BrandController {
   constructor(private service: BrandService) {}

@@ -5,14 +5,24 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { DictionaryService } from './dictionary.service';
 import {
+  DictionaryScheme,
   IdOnlyResponse,
   LocaleParamsDto,
   UpdateDictionaryDto,
 } from 'shared/schemas';
+import { Roles } from 'decorators/roles.decorator';
+import { RolesEnum } from 'shared/constants';
+import { RolesGuard } from 'guards';
 
 @ApiTags('Translation')
 @Controller('api/translation')
@@ -34,6 +44,9 @@ export class DictionaryController {
     description: 'Update translation values',
   })
   @ApiResponse({ status: 200, type: IdOnlyResponse })
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
+  @ApiBearerAuth()
   @Patch('/:id')
   update(
     @Body() data: UpdateDictionaryDto,
@@ -46,9 +59,9 @@ export class DictionaryController {
     summary: 'Find dictionary',
     description: 'Find dictionary values',
   })
-  @ApiResponse({ status: 200, type: IdOnlyResponse })
+  @ApiResponse({ status: 200, type: DictionaryScheme })
   @Get('/:id')
-  find(@Param('id', ParseIntPipe) id: number): Promise<IdOnlyResponse> {
+  find(@Param('id', ParseIntPipe) id: number): Promise<DictionaryScheme> {
     return this.service.findById(id);
   }
 

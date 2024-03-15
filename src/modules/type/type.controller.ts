@@ -22,7 +22,7 @@ import { RolesEnum } from 'shared/constants';
 import { TypeScheme } from 'shared/schemas';
 
 @ApiTags('Admins commands', 'Type')
-@Roles(RolesEnum.ADMIN, RolesEnum.USER)
+@Roles(RolesEnum.ADMIN)
 @UseGuards(RolesGuard)
 @ApiBearerAuth()
 @Controller('api/admin/type')

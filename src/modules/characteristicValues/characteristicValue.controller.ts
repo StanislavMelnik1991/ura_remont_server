@@ -1,9 +1,27 @@
-import { Body, Controller, Param, ParseIntPipe, Post } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  Body,
+  Controller,
+  Param,
+  ParseIntPipe,
+  Post,
+  UseGuards,
+} from '@nestjs/common';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { CharacteristicValueService } from './characteristicValue.service';
 import { CreateTypePropertyValueDto, IdOnlyResponse } from 'shared/schemas';
+import { RolesEnum } from 'shared/constants';
+import { Roles } from 'decorators/roles.decorator';
+import { RolesGuard } from 'guards';
 
 @ApiTags('Admins commands', 'CharacteristicValues')
+@Roles(RolesEnum.ADMIN)
+@UseGuards(RolesGuard)
+@ApiBearerAuth()
 @Controller('api/admin/prototype/:prototypeId')
 export class CharacteristicValueController {
   constructor(private service: CharacteristicValueService) {}

@@ -5,8 +5,14 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  UseGuards,
 } from '@nestjs/common';
-import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 import { ProductService } from './product.service';
 import {
   CreateProductDto,
@@ -14,8 +20,14 @@ import {
   IdOnlyResponse,
   UpdateProductDto,
 } from 'shared/schemas';
+import { Roles } from 'decorators/roles.decorator';
+import { RolesEnum } from 'shared/constants';
+import { RolesGuard } from 'guards';
 
 @ApiTags('Admins commands', 'Product')
+@Roles(RolesEnum.ADMIN)
+@UseGuards(RolesGuard)
+@ApiBearerAuth()
 @Controller('api/admin/product')
 export class ProductController {
   constructor(private service: ProductService) {}
