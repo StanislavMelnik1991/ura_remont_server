@@ -4,11 +4,12 @@ import { BrandController } from './brand.controller';
 import { BrandService } from './brand.service';
 import { DictionaryModule } from 'modules/dictionary/dictionary.module';
 import { Brand } from 'database';
+import { AuthModule } from 'modules/auth';
 
 @Module({
   controllers: [BrandController],
   providers: [BrandService],
-  imports: [TypeOrmModule.forFeature([Brand]), DictionaryModule],
+  imports: [TypeOrmModule.forFeature([Brand]), DictionaryModule, AuthModule],
   exports: [BrandService],
 })
 export class BrandModule {}

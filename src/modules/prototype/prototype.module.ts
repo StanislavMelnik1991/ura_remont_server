@@ -9,6 +9,7 @@ import { DictionaryModule } from 'modules/dictionary/dictionary.module';
 import { ProductPrototype } from 'database';
 import { TypeModule } from 'modules/type';
 import { BrandModule } from 'modules/brand';
+import { AuthModule } from 'modules/auth';
 
 @Module({
   controllers: [PrototypeController],
@@ -21,6 +22,7 @@ import { BrandModule } from 'modules/brand';
     DictionaryModule,
     BrandModule,
     TypeModule,
+    AuthModule,
   ],
   exports: [PrototypeService],
 })

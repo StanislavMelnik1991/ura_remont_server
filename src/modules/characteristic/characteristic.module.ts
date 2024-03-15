@@ -5,6 +5,7 @@ import { CharacteristicService } from './characteristic.service';
 import { CharacteristicValueModule } from 'modules/characteristicValues/characteristicValue.module';
 import { DictionaryModule } from 'modules/dictionary/dictionary.module';
 import { Characteristic } from 'database';
+import { AuthModule } from 'modules/auth';
 
 @Module({
   controllers: [CharacteristicController],
@@ -13,6 +14,7 @@ import { Characteristic } from 'database';
     TypeOrmModule.forFeature([Characteristic]),
     CharacteristicValueModule,
     DictionaryModule,
+    AuthModule,
   ],
   exports: [CharacteristicService],
 })
