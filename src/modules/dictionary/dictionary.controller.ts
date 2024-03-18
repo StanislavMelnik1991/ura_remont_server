@@ -21,7 +21,7 @@ import {
   DictionarySwaggerScheme,
   LocaleParamsDto,
   UpdateDictionaryDto,
-} from 'utils/swagger';
+} from 'types/swagger';
 
 @ApiTags('Translation')
 @Controller('api/translation')

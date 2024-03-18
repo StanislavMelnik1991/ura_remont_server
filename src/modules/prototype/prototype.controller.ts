@@ -18,9 +18,11 @@ import { PrototypeProperty } from 'database';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesEnum } from 'shared/constants';
 import { RolesGuard } from 'guards';
-import { CreatePrototypeDto } from 'utils/swagger/dto/prototype.dto';
-import { PrototypeSwaggerScheme } from 'utils/swagger';
-import { CreatePropertyDto } from 'utils/swagger/dto/property.dto';
+import {
+  CreatePrototypeDto,
+  PrototypeSwaggerScheme,
+  CreatePropertyDto,
+} from 'types/swagger';
 
 @ApiTags('Admins commands', 'Prototype')
 @Roles(RolesEnum.ADMIN)

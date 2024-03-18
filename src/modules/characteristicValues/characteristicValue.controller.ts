@@ -16,7 +16,7 @@ import { CharacteristicValueService } from './characteristicValue.service';
 import { RolesEnum } from 'shared/constants';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesGuard } from 'guards';
-import { CreateValueDto } from 'utils/swagger/dto/value.dto';
+import { CreateValueDto } from 'types/swagger';
 
 @ApiTags('Admins commands', 'CharacteristicValues')
 @Roles(RolesEnum.ADMIN)

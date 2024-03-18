@@ -17,8 +17,7 @@ import { TypeService } from './type.service';
 import { RolesGuard } from 'guards';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesEnum } from 'shared/constants';
-import { CreateTypeDto } from 'utils/swagger/dto/type.dto';
-import { TypeSwaggerScheme } from 'utils/swagger';
+import { CreateTypeDto, TypeSwaggerScheme } from 'types/swagger';
 
 @ApiTags('Admins commands', 'Type')
 @Roles(RolesEnum.ADMIN)

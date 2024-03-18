@@ -3,7 +3,7 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { authScheme } from 'shared/schemas';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
-import { AuthDto, TokenScheme } from 'utils/swagger';
+import { AuthDto, TokenScheme } from 'types/swagger';
 
 @ApiTags('Authorization')
 @Controller('api/auth')

@@ -17,7 +17,7 @@ import { BrandService } from './brand.service';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesEnum } from 'shared/constants';
 import { RolesGuard } from 'guards';
-import { BrandSwaggerSchema, CreateBrandDto } from 'utils/swagger';
+import { BrandSwaggerSchema, CreateBrandDto } from 'types/swagger';
 
 @ApiTags('Admins commands', 'Brand')
 @Roles(RolesEnum.ADMIN)

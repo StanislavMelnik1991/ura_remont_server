@@ -20,8 +20,8 @@ import { RolesGuard } from 'guards';
 import {
   CreateProductDto,
   UpdateProductDto,
-} from 'utils/swagger/dto/product.dto';
-import { CreateValueDto } from 'utils/swagger/dto/value.dto';
+  CreateValueDto,
+} from 'types/swagger';
 
 @ApiTags('Admins commands', 'Product')
 @Roles(RolesEnum.ADMIN)

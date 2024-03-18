@@ -18,7 +18,7 @@ import { Characteristic } from 'database';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesGuard } from 'guards';
 import { RolesEnum } from 'shared/constants';
-import { CreatePropertyDto } from 'utils/swagger/dto/property.dto';
+import { CreatePropertyDto } from 'types/swagger';
 
 @ApiTags('Admins commands', 'Characteristics')
 @Roles(RolesEnum.ADMIN)
