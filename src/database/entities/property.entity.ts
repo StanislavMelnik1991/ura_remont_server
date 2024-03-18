@@ -1,25 +1,11 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Dictionary } from './dictionary.entity';
 import { ProductPrototype } from './prototype.entity';
-import { PropertySchemeType } from 'shared/schemas';
+import { CustomEntity } from './base.entity';
+import { IProperty } from 'shared/types';
 
 @Entity('properties')
-export class PrototypeProperty implements PropertySchemeType {
-  @PrimaryGeneratedColumn()
-  id: number;
-  @CreateDateColumn()
-  createdAt: Date;
-  @UpdateDateColumn()
-  updatedAt: Date;
-
+export class PrototypeProperty extends CustomEntity implements IProperty {
   @ManyToOne(() => ProductPrototype, (dict) => dict.id)
   @JoinColumn({
     name: 'prototypeId',

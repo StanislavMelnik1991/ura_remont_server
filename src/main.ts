@@ -1,4 +1,3 @@
-import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { AppModule } from 'modules/app.module';
@@ -8,7 +7,6 @@ async function start() {
   const app = await NestFactory.create(AppModule, {
     cors: true,
   });
-  app.useGlobalPipes(new ValidationPipe());
   const config = new DocumentBuilder()
     .setTitle('"URA REMONT" SERVER')
     .addBearerAuth({

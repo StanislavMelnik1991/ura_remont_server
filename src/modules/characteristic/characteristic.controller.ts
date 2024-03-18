@@ -15,10 +15,10 @@ import {
 } from '@nestjs/swagger';
 import { CharacteristicService } from './characteristic.service';
 import { Characteristic } from 'database';
-import { CreateTypePropertyDto, IdOnlyResponse } from 'shared/schemas';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesGuard } from 'guards';
 import { RolesEnum } from 'shared/constants';
+import { CreatePropertyDto } from 'utils/swagger/dto/property.dto';
 
 @ApiTags('Admins commands', 'Characteristics')
 @Roles(RolesEnum.ADMIN)
@@ -44,12 +44,12 @@ export class CharacteristicController {
     summary: 'Create type characteristic',
     description: 'Create type characteristic',
   })
-  @ApiResponse({ status: 200, type: IdOnlyResponse })
+  @ApiResponse({ status: 200 })
   @Post('/')
   createCharacteristic(
-    @Body() data: CreateTypePropertyDto,
+    @Body() data: CreatePropertyDto,
     @Param('typeId', ParseIntPipe) typeId: number,
-  ): Promise<IdOnlyResponse> {
+  ) {
     return this.service.create({ ...data, typeId });
   }
 }

@@ -4,7 +4,6 @@ import {
   Get,
   Param,
   ParseIntPipe,
-  Patch,
   Post,
   UseGuards,
 } from '@nestjs/common';
@@ -15,11 +14,11 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { TypeService } from './type.service';
-import { CreateTypeDto, IdOnlyResponse, UpdateTypeDto } from 'shared/schemas';
 import { RolesGuard } from 'guards';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesEnum } from 'shared/constants';
-import { TypeScheme } from 'shared/schemas';
+import { CreateTypeDto } from 'utils/swagger/dto/type.dto';
+import { TypeSwaggerScheme } from 'utils/swagger';
 
 @ApiTags('Admins commands', 'Type')
 @Roles(RolesEnum.ADMIN)
@@ -33,32 +32,32 @@ export class TypeController {
     summary: 'Create type',
     description: 'Creation new type of production',
   })
-  @ApiResponse({ status: 200, type: IdOnlyResponse })
+  @ApiResponse({ status: 200 })
   @Post('/')
-  create(@Body() data: CreateTypeDto): Promise<IdOnlyResponse> {
+  create(@Body() data: CreateTypeDto) {
     return this.service.create(data);
   }
 
-  @ApiOperation({
+  /* @ApiOperation({
     summary: 'Update type',
     description: 'Update type values',
   })
-  @ApiResponse({ status: 200, type: IdOnlyResponse })
+  @ApiResponse({ status: 200 })
   @Patch('/:id')
   update(
     @Body() data: UpdateTypeDto,
     @Param('id', ParseIntPipe) id: number,
   ): Promise<IdOnlyResponse> {
     return this.service.update({ ...data, id });
-  }
+  } */
 
   @ApiOperation({
     summary: 'Get type',
     description: 'Get type',
   })
-  @ApiResponse({ status: 200, type: TypeScheme })
+  @ApiResponse({ status: 200, type: TypeSwaggerScheme })
   @Get('/:id')
-  getType(@Param('id', ParseIntPipe) id: number): Promise<TypeScheme> {
+  getType(@Param('id', ParseIntPipe) id: number): Promise<TypeSwaggerScheme> {
     return this.service.getType(id);
   }
 }

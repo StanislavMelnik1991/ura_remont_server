@@ -1,27 +1,12 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  Unique,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, Unique } from 'typeorm';
 import { PrototypeProperty } from './property.entity';
 import { Product } from './product.entity';
-import { PropertyValueSchemeType } from 'shared/schemas';
+import { CustomEntity } from './base.entity';
+import { IPropertyValue } from 'shared/types';
 
 @Entity('property_values')
 @Unique(['productId', 'propertyId'])
-export class PropertyValue implements PropertyValueSchemeType {
-  @PrimaryGeneratedColumn()
-  id: number;
-  @CreateDateColumn()
-  createdAt: Date;
-  @UpdateDateColumn()
-  updatedAt: Date;
-
+export class PropertyValue extends CustomEntity implements IPropertyValue {
   @ManyToOne(() => Product, (dict) => dict.id)
   @JoinColumn({
     name: 'productId',

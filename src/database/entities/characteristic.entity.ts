@@ -1,25 +1,11 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Dictionary } from './dictionary.entity';
 import { TypeEntity } from './type.entity';
-import { CharacteristicSchemeType } from 'shared/schemas';
+import { CustomEntity } from './base.entity';
+import { ICharacteristic } from 'shared/types';
 
 @Entity('characteristics')
-export class Characteristic implements CharacteristicSchemeType {
-  @PrimaryGeneratedColumn()
-  id: number;
-  @CreateDateColumn()
-  createdAt: Date;
-  @UpdateDateColumn()
-  updatedAt: Date;
-
+export class Characteristic extends CustomEntity implements ICharacteristic {
   @ManyToOne(() => TypeEntity, (dict) => dict.id)
   @JoinColumn({
     name: 'typeId',

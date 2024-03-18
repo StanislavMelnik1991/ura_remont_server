@@ -159,7 +159,7 @@ export class PrototypeService {
           id: el.id,
           isFilter: el.isFilter,
           display: el.display,
-          value: value.value,
+          value: value?.value || null,
           name,
           suffix,
         };

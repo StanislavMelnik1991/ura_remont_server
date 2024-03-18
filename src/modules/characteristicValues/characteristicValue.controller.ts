@@ -13,10 +13,10 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { CharacteristicValueService } from './characteristicValue.service';
-import { CreateTypePropertyValueDto, IdOnlyResponse } from 'shared/schemas';
 import { RolesEnum } from 'shared/constants';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesGuard } from 'guards';
+import { CreateValueDto } from 'utils/swagger/dto/value.dto';
 
 @ApiTags('Admins commands', 'CharacteristicValues')
 @Roles(RolesEnum.ADMIN)
@@ -30,13 +30,13 @@ export class CharacteristicValueController {
     summary: 'Create prototype property',
     description: 'Create prototype property',
   })
-  @ApiResponse({ status: 200, type: IdOnlyResponse })
+  @ApiResponse({ status: 200 })
   @Post('/property/:characteristicId/')
   createValue(
-    @Body() { value }: CreateTypePropertyValueDto,
+    @Body() { value }: CreateValueDto,
     @Param('prototypeId', ParseIntPipe) prototypeId: number,
     @Param('characteristicId', ParseIntPipe) characteristicId: number,
-  ): Promise<IdOnlyResponse> {
+  ) {
     return this.service.setValue({ value, characteristicId, prototypeId });
   }
 }

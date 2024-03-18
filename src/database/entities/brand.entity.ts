@@ -1,24 +1,10 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Dictionary } from './dictionary.entity';
-import { BrandSchemeType } from 'shared/schemas/';
+import { CustomEntity } from './base.entity';
+import { IBrand } from 'shared/types';
 
 @Entity('brands')
-export class Brand implements BrandSchemeType {
-  @PrimaryGeneratedColumn()
-  id: number;
-  @CreateDateColumn()
-  createdAt: Date;
-  @UpdateDateColumn()
-  updatedAt: Date;
-
+export class Brand extends CustomEntity implements IBrand {
   @ManyToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({
     name: 'name',

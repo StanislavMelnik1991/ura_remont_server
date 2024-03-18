@@ -1,22 +1,10 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity } from 'typeorm';
 import { RolesEnum } from 'shared/constants';
-import { UserSchemeType } from 'shared/schemas';
+import { CustomEntity } from './base.entity';
+import { IUser } from 'shared/types';
 
 @Entity('users')
-export class User implements UserSchemeType {
-  @PrimaryGeneratedColumn()
-  id: number;
-  @CreateDateColumn()
-  createdAt: Date;
-  @UpdateDateColumn()
-  updatedAt: Date;
-
+export class User extends CustomEntity implements IUser {
   @Column({ unique: true })
   login: string;
 

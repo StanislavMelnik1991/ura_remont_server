@@ -1,26 +1,12 @@
-import {
-  Column,
-  CreateDateColumn,
-  Entity,
-  JoinColumn,
-  ManyToOne,
-  PrimaryGeneratedColumn,
-  UpdateDateColumn,
-} from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
 import { Brand } from './brand.entity';
 import { TypeEntity } from './type.entity';
 import { Dictionary } from './dictionary.entity';
-import { PrototypeSchemeType } from 'shared/schemas';
+import { CustomEntity } from './base.entity';
+import { IPrototype } from 'shared/types';
 
 @Entity('prototypes')
-export class ProductPrototype implements PrototypeSchemeType {
-  @PrimaryGeneratedColumn()
-  id: number;
-  @CreateDateColumn()
-  createdAt: Date;
-  @UpdateDateColumn()
-  updatedAt: Date;
-
+export class ProductPrototype extends CustomEntity implements IPrototype {
   @ManyToOne(() => Brand, (dict) => dict.id)
   @JoinColumn({
     name: 'brandId',

@@ -14,15 +14,14 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { ProductService } from './product.service';
-import {
-  CreateProductDto,
-  CreateValueDto,
-  IdOnlyResponse,
-  UpdateProductDto,
-} from 'shared/schemas';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesEnum } from 'shared/constants';
 import { RolesGuard } from 'guards';
+import {
+  CreateProductDto,
+  UpdateProductDto,
+} from 'utils/swagger/dto/product.dto';
+import { CreateValueDto } from 'utils/swagger/dto/value.dto';
 
 @ApiTags('Admins commands', 'Product')
 @Roles(RolesEnum.ADMIN)
@@ -36,9 +35,9 @@ export class ProductController {
     summary: 'Create product',
     description: 'Creation new type of production',
   })
-  @ApiResponse({ status: 200, type: IdOnlyResponse })
+  @ApiResponse({ status: 200 })
   @Post('/')
-  create(@Body() data: CreateProductDto): Promise<IdOnlyResponse> {
+  create(@Body() data: CreateProductDto) {
     return this.service.create(data);
   }
 
@@ -46,12 +45,12 @@ export class ProductController {
     summary: 'Update product',
     description: 'Update production values',
   })
-  @ApiResponse({ status: 200, type: IdOnlyResponse })
+  @ApiResponse({ status: 200 })
   @Patch('/:productId')
   update(
     @Body() data: UpdateProductDto,
     @Param('productId', ParseIntPipe) productId: number,
-  ): Promise<IdOnlyResponse> {
+  ) {
     return this.service.update({ ...data, id: productId });
   }
 
@@ -59,13 +58,13 @@ export class ProductController {
     summary: 'Update product',
     description: 'Update production values',
   })
-  @ApiResponse({ status: 200, type: IdOnlyResponse })
+  @ApiResponse({ status: 200 })
   @Post('/:productId/property/:propertyId')
   createValue(
     @Body() data: CreateValueDto,
     @Param('productId', ParseIntPipe) productId: number,
     @Param('propertyId', ParseIntPipe) propertyId: number,
-  ): Promise<IdOnlyResponse> {
+  ) {
     return this.service.createValue({ ...data, productId, propertyId });
   }
 }
