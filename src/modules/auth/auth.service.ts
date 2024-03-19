@@ -22,11 +22,9 @@ export class AuthService {
         login,
         password: hashPassword,
       });
-      console.log(hashPassword);
       await this.userRepository.save(entity);
       return this.generateToken(entity);
     } catch (error) {
-      console.log(error);
       throw new HttpException(
         { authorization: 'something wrong' },
         HttpStatus.CONFLICT,
@@ -38,14 +36,14 @@ export class AuthService {
     const entity = await this.userRepository.findOneBy({ login: login });
     if (!entity) {
       throw new HttpException(
-        { authorization: 'something wrong' },
+        { authorization: 'incorrect login or password' },
         HttpStatus.BAD_REQUEST,
       );
     }
     const comparePassword = compareSync(password, entity.password);
     if (!comparePassword) {
       throw new HttpException(
-        { authorization: 'something wrong' },
+        { authorization: 'incorrect login or password' },
         HttpStatus.BAD_REQUEST,
       );
     }

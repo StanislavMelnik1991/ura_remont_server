@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Post,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -17,46 +18,50 @@ import { TypeService } from './type.service';
 import { RolesGuard } from 'guards';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesEnum } from 'shared/constants';
-import { CreateTypeDto, TypeSwaggerScheme } from 'types/swagger';
+import {
+  AdminTypeSwaggerSchema,
+  CreateTypeDto,
+  TypeSwaggerScheme,
+} from 'types/swagger';
+import { adminRouter } from 'shared/routes';
+import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
+
+const {
+  create,
+  current: {
+    getCurrent: { baseRoute },
+    idMask,
+  },
+} = adminRouter.type;
 
 @ApiTags('Admins commands', 'Type')
 @Roles(RolesEnum.ADMIN)
 @UseGuards(RolesGuard)
 @ApiBearerAuth()
-@Controller('api/admin/type')
+@Controller()
 export class TypeController {
   constructor(private service: TypeService) {}
 
   @ApiOperation({
     summary: 'Create type',
-    description: 'Creation new type of production',
+    description: 'Creation new type',
   })
-  @ApiResponse({ status: 200 })
-  @Post('/')
-  create(@Body() data: CreateTypeDto) {
+  @ApiResponse({ status: 200, type: TypeSwaggerScheme })
+  @Post(create.baseRoute)
+  @UsePipes(new ZodValidationPipe(create.scheme))
+  create(@Body() data: CreateTypeDto): Promise<TypeSwaggerScheme> {
     return this.service.create(data);
   }
-
-  /* @ApiOperation({
-    summary: 'Update type',
-    description: 'Update type values',
-  })
-  @ApiResponse({ status: 200 })
-  @Patch('/:id')
-  update(
-    @Body() data: UpdateTypeDto,
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<IdOnlyResponse> {
-    return this.service.update({ ...data, id });
-  } */
 
   @ApiOperation({
     summary: 'Get type',
     description: 'Get type',
   })
-  @ApiResponse({ status: 200, type: TypeSwaggerScheme })
-  @Get('/:id')
-  getType(@Param('id', ParseIntPipe) id: number): Promise<TypeSwaggerScheme> {
+  @ApiResponse({ status: 200, type: AdminTypeSwaggerSchema })
+  @Get(baseRoute)
+  getType(
+    @Param(idMask, ParseIntPipe) id: number,
+  ): Promise<AdminTypeSwaggerSchema> {
     return this.service.getType(id);
   }
 }

@@ -1,10 +1,15 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreateDictionarySchemeType } from 'shared/schemas';
+import { adminRouter } from 'shared/routes';
+import { z } from 'zod';
 
-export class CreateDictionaryDto implements CreateDictionarySchemeType {
+const { scheme } = adminRouter.dictionary.current.update;
+
+type BaseType = z.infer<typeof scheme>;
+
+export class UpdateDictionaryDto implements BaseType {
   @ApiProperty({
     description: 'ru language value',
-    required: true,
+    required: false,
     example: 'язык',
   })
   ru: string;
@@ -38,10 +43,10 @@ export class CreateDictionaryDto implements CreateDictionarySchemeType {
   pl: string;
 }
 
-export class UpdateDictionaryDto extends CreateDictionaryDto {
+export class CreateDictionaryDto extends UpdateDictionaryDto {
   @ApiProperty({
     description: 'ru language value',
-    required: false,
+    required: true,
     example: 'язык',
   })
   ru: string;

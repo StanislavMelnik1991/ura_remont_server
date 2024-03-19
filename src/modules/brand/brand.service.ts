@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brand, Dictionary } from 'database';
 import { DictionaryService } from 'modules/dictionary/dictionary.service';
@@ -36,7 +42,7 @@ export class BrandService {
       await queryRunner.manager.save(Brand, newBrand);
 
       await queryRunner.commitTransaction();
-      return { id: newBrand.id };
+      return newBrand;
     } catch (err) {
       await queryRunner.rollbackTransaction();
       throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -75,7 +81,7 @@ export class BrandService {
 
       await queryRunner.commitTransaction();
 
-      return { id };
+      return brand;
     } catch (err) {
       await queryRunner.rollbackTransaction();
       if (err instanceof HttpException) {
@@ -87,8 +93,20 @@ export class BrandService {
     }
   }
   async getBrand(id: number) {
-    return this.brandRepository.findOneBy({ id });
+    const entity = await this.brandRepository.findOneBy({ id });
+    if (!entity) {
+      throw new NotFoundException();
+    }
+    const [name, description] = await Promise.all([
+      this.dictionaryService.findById(entity.name),
+      this.dictionaryService.findById(entity.description),
+    ]);
+    if (!name || !description) {
+      throw new InternalServerErrorException();
+    }
+    return { ...entity, name, description };
   }
+
   async findByIdOrFail(id: number) {
     try {
       return await this.brandRepository.findOneByOrFail({ id });

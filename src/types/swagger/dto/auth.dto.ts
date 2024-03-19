@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { AuthSchemeType } from 'shared/schemas';
+import { apiRouter } from 'shared/routes';
+import { z } from 'zod';
+
+const {
+  auth: { scheme },
+} = apiRouter;
+
+type AuthSchemeType = z.infer<typeof scheme>;
 
 export class AuthDto implements AuthSchemeType {
   @ApiProperty({ example: 'Admin' })

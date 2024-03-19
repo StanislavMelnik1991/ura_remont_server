@@ -1,12 +1,16 @@
 import { Body, Controller, Post, UsePipes } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
-import { authScheme } from 'shared/schemas';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 import { AuthDto, TokenScheme } from 'types/swagger';
+import { apiRouter } from 'shared/routes';
+
+const {
+  auth: { scheme, signIn, signup },
+} = apiRouter;
 
 @ApiTags('Authorization')
-@Controller('api/auth')
+@Controller()
 export class AuthController {
   constructor(private authService: AuthService) {}
 
@@ -14,8 +18,8 @@ export class AuthController {
     summary: 'Registration user',
   })
   @ApiResponse({ status: 200, type: TokenScheme })
-  @Post('/registration')
-  @UsePipes(new ZodValidationPipe(authScheme))
+  @Post(signup.baseRoute)
+  @UsePipes(new ZodValidationPipe(scheme))
   signup(@Body() data: AuthDto) {
     return this.authService.create(data);
   }
@@ -24,8 +28,8 @@ export class AuthController {
     summary: 'Authorization user',
   })
   @ApiResponse({ status: 200, type: TokenScheme })
-  @Post('/authorization')
-  @UsePipes(new ZodValidationPipe(authScheme))
+  @Post(signIn.baseRoute)
+  @UsePipes(new ZodValidationPipe(scheme))
   login(@Body() data: AuthDto) {
     return this.authService.login(data);
   }

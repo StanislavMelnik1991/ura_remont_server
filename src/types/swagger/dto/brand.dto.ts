@@ -1,5 +1,14 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreateBrandSchemeType } from 'shared/schemas';
+import { adminRouter } from 'shared/routes';
+import { z } from 'zod';
+
+const {
+  brand: {
+    create: { scheme },
+  },
+} = adminRouter;
+
+type CreateBrandSchemeType = z.infer<typeof scheme>;
 
 export class CreateBrandDto implements CreateBrandSchemeType {
   @ApiProperty({

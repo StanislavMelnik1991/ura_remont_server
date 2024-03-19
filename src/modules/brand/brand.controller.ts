@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Post,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 import {
   ApiOperation,
@@ -17,13 +18,27 @@ import { BrandService } from './brand.service';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesEnum } from 'shared/constants';
 import { RolesGuard } from 'guards';
-import { BrandSwaggerSchema, CreateBrandDto } from 'types/swagger';
+import {
+  AdminBrandSwaggerSchema,
+  BrandSwaggerSchema,
+  CreateBrandDto,
+} from 'types/swagger';
+import { adminRouter } from 'shared/routes';
+import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
+
+const {
+  create: { baseRoute: creationRoute, scheme },
+  current: {
+    getCurrent: { baseRoute: currentRoute },
+    idMask,
+  },
+} = adminRouter.brand;
 
 @ApiTags('Admins commands', 'Brand')
 @Roles(RolesEnum.ADMIN)
 @UseGuards(RolesGuard)
 @ApiBearerAuth()
-@Controller('api/admin/brand')
+@Controller()
 export class BrandController {
   constructor(private service: BrandService) {}
 
@@ -31,34 +46,22 @@ export class BrandController {
     summary: 'Create brand',
     description: 'Creation new brand',
   })
-  @ApiResponse({ status: 200 })
-  @Post('/')
-  create(@Body() data: CreateBrandDto) {
+  @ApiResponse({ status: 200, type: BrandSwaggerSchema })
+  @Post(creationRoute)
+  @UsePipes(new ZodValidationPipe(scheme))
+  create(@Body() data: CreateBrandDto): Promise<BrandSwaggerSchema> {
     return this.service.create(data);
   }
-
-  // @ApiOperation({
-  //   summary: 'Update brand',
-  //   description: 'Update brand',
-  // })
-  // @ApiResponse({ status: 200 })
-  // @Patch('/:id')
-  // update(
-  //   @Body() data: UpdateBrandDto,
-  //   @Param('id', ParseIntPipe) id: number,
-  // ): Promise<IdOnlyResponse> {
-  //   return this.service.update({ ...data, id });
-  // }
 
   @ApiOperation({
     summary: 'Get brand',
     description: 'Get brand',
   })
-  @ApiResponse({ status: 200, type: BrandSwaggerSchema })
-  @Get('/:id')
+  @ApiResponse({ status: 200, type: AdminBrandSwaggerSchema })
+  @Get(currentRoute)
   getBrand(
-    @Param('id', ParseIntPipe) id: number,
-  ): Promise<BrandSwaggerSchema | null> {
+    @Param(idMask, ParseIntPipe) id: number,
+  ): Promise<AdminBrandSwaggerSchema> {
     return this.service.getBrand(id);
   }
 }

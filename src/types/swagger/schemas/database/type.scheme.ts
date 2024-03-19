@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseScheme } from './base.scheme';
 import { IProductType } from 'shared/types';
+import { DictionarySwaggerScheme } from './dictionary.scheme';
 
 export class TypeSwaggerScheme extends BaseScheme implements IProductType {
   @ApiProperty({
@@ -16,4 +17,21 @@ export class TypeSwaggerScheme extends BaseScheme implements IProductType {
     required: false,
   })
   description: number;
+}
+export class LocalizedTypeSwaggerSchema extends BaseScheme {
+  @ApiProperty()
+  name: string;
+
+  @ApiProperty({
+    required: false,
+  })
+  description: string;
+}
+
+export class AdminTypeSwaggerSchema extends BaseScheme {
+  @ApiProperty()
+  name: DictionarySwaggerScheme;
+
+  @ApiProperty()
+  description: DictionarySwaggerScheme;
 }

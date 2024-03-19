@@ -1,4 +1,10 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dictionary, ProductType } from 'database';
 import { CharacteristicService } from 'modules/characteristic/characteristic.service';
@@ -39,7 +45,7 @@ export class TypeService {
       await queryRunner.manager.save(ProductType, newType);
 
       await queryRunner.commitTransaction();
-      return { id: newType.id };
+      return newType;
     } catch (err) {
       await queryRunner.rollbackTransaction();
       throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -92,8 +98,19 @@ export class TypeService {
     }
   }
 
-  getType(id: number) {
-    return this.findByIdOrFail(id);
+  async getType(id: number) {
+    const entity = await this.typeRepository.findOneBy({ id });
+    if (!entity) {
+      throw new NotFoundException();
+    }
+    const [name, description] = await Promise.all([
+      this.dictionaryService.findById(entity.name),
+      this.dictionaryService.findById(entity.description),
+    ]);
+    if (!name || !description) {
+      throw new InternalServerErrorException();
+    }
+    return { ...entity, name, description };
   }
 
   findProperties(typeId: number) {

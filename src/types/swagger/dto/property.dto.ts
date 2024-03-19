@@ -1,5 +1,10 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { CreatePropertySchemeType } from 'shared/schemas';
+import { adminRouter } from 'shared/routes';
+import { z } from 'zod';
+
+const { scheme } = adminRouter.type.current.characteristic.create;
+
+type CreatePropertySchemeType = z.infer<typeof scheme>;
 
 export class CreatePropertyDto implements CreatePropertySchemeType {
   @ApiProperty({

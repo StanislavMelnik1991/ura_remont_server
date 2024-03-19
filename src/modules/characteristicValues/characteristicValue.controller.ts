@@ -5,6 +5,7 @@ import {
   ParseIntPipe,
   Post,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -17,25 +18,32 @@ import { RolesEnum } from 'shared/constants';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesGuard } from 'guards';
 import { CreateValueDto } from 'types/swagger';
+import { adminRouter } from 'shared/routes';
+import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 
-@ApiTags('Admins commands', 'CharacteristicValues')
+const {
+  create: { baseRoute, scheme, prototypeIdMask, idMask },
+} = adminRouter.prototype.current.value;
+
+@ApiTags('Admins commands', 'Characteristics', 'Prototype')
 @Roles(RolesEnum.ADMIN)
 @UseGuards(RolesGuard)
 @ApiBearerAuth()
-@Controller('api/admin/prototype/:prototypeId')
+@Controller()
 export class CharacteristicValueController {
   constructor(private service: CharacteristicValueService) {}
 
   @ApiOperation({
-    summary: 'Create prototype property',
-    description: 'Create prototype property',
+    summary: 'Create characteristic value',
+    description: 'Create characteristic value',
   })
   @ApiResponse({ status: 200 })
-  @Post('/property/:characteristicId/')
+  @Post(baseRoute)
+  @UsePipes(new ZodValidationPipe(scheme))
   createValue(
     @Body() { value }: CreateValueDto,
-    @Param('prototypeId', ParseIntPipe) prototypeId: number,
-    @Param('characteristicId', ParseIntPipe) characteristicId: number,
+    @Param(prototypeIdMask, ParseIntPipe) prototypeId: number,
+    @Param(idMask, ParseIntPipe) characteristicId: number,
   ) {
     return this.service.setValue({ value, characteristicId, prototypeId });
   }

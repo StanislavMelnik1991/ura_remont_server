@@ -6,6 +6,7 @@ import {
   Patch,
   Post,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -22,12 +23,29 @@ import {
   UpdateProductDto,
   CreateValueDto,
 } from 'types/swagger';
+import { adminRouter } from 'shared/routes';
+import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
+
+const {
+  create: { baseRoute: createRoute, scheme: createScheme },
+  current: {
+    idMask: productIdMask,
+    update: { baseRoute: updateRoute, scheme: updateScheme },
+    value: {
+      create: {
+        baseRoute: createValueRoute,
+        idMask: propertyIdMask,
+        scheme: createValueScheme,
+      },
+    },
+  },
+} = adminRouter.product;
 
 @ApiTags('Admins commands', 'Product')
 @Roles(RolesEnum.ADMIN)
 @UseGuards(RolesGuard)
 @ApiBearerAuth()
-@Controller('api/admin/product')
+@Controller()
 export class ProductController {
   constructor(private service: ProductService) {}
 
@@ -36,7 +54,8 @@ export class ProductController {
     description: 'Creation new type of production',
   })
   @ApiResponse({ status: 200 })
-  @Post('/')
+  @Post(createRoute)
+  @UsePipes(new ZodValidationPipe(createScheme))
   create(@Body() data: CreateProductDto) {
     return this.service.create(data);
   }
@@ -46,24 +65,27 @@ export class ProductController {
     description: 'Update production values',
   })
   @ApiResponse({ status: 200 })
-  @Patch('/:productId')
+  @Patch(updateRoute)
+  @UsePipes(new ZodValidationPipe(updateScheme))
   update(
     @Body() data: UpdateProductDto,
-    @Param('productId', ParseIntPipe) productId: number,
+    @Param(productIdMask, ParseIntPipe) productId: number,
   ) {
     return this.service.update({ ...data, id: productId });
   }
 
   @ApiOperation({
-    summary: 'Update product',
-    description: 'Update production values',
+    summary: 'Create product property value',
+    description: 'Create value for product property',
   })
   @ApiResponse({ status: 200 })
-  @Post('/:productId/property/:propertyId')
+  @ApiTags('Properties')
+  @Post(createValueRoute)
+  @UsePipes(new ZodValidationPipe(createValueScheme))
   createValue(
     @Body() data: CreateValueDto,
-    @Param('productId', ParseIntPipe) productId: number,
-    @Param('propertyId', ParseIntPipe) propertyId: number,
+    @Param(productIdMask, ParseIntPipe) productId: number,
+    @Param(propertyIdMask, ParseIntPipe) propertyId: number,
   ) {
     return this.service.createValue({ ...data, productId, propertyId });
   }

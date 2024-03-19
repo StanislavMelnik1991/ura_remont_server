@@ -1,10 +1,18 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  CreateProductSchemeType,
-  UpdateProductSchemeType,
-} from 'shared/schemas';
+import { adminRouter } from 'shared/routes';
+import { z } from 'zod';
 
-export class CreateProductDto implements CreateProductSchemeType {
+const {
+  create: { scheme: createScheme },
+  current: {
+    update: { scheme: updateScheme },
+  },
+} = adminRouter.product;
+
+type CreateType = z.infer<typeof createScheme>;
+type UpdateType = z.infer<typeof updateScheme>;
+
+export class CreateProductDto implements CreateType {
   @ApiProperty({
     example: 1,
     description: 'Id of prototype reference',
@@ -39,7 +47,7 @@ export class CreateProductDto implements CreateProductSchemeType {
   price: number;
 }
 
-export class UpdateProductDto implements UpdateProductSchemeType {
+export class UpdateProductDto implements UpdateType {
   @ApiProperty({
     example: 'TD99AS8',
     description: '1c ID',

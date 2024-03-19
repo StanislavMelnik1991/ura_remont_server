@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Patch,
   UseGuards,
+  UsePipes,
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
@@ -22,9 +23,17 @@ import {
   LocaleParamsDto,
   UpdateDictionaryDto,
 } from 'types/swagger';
+import { adminRouter } from 'shared/routes';
+import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
+
+const {
+  idMask,
+  getCurrent: { baseRoute: getRoute },
+  update: { baseRoute: updateRoute, scheme },
+} = adminRouter.dictionary.current;
 
 @ApiTags('Translation')
-@Controller('api/translation')
+@Controller()
 export class DictionaryController {
   constructor(private service: DictionaryService) {}
 
@@ -46,10 +55,11 @@ export class DictionaryController {
   @Roles(RolesEnum.ADMIN)
   @UseGuards(RolesGuard)
   @ApiBearerAuth()
-  @Patch('/:id')
+  @Patch(updateRoute)
+  @UsePipes(new ZodValidationPipe(scheme))
   update(
     @Body() data: UpdateDictionaryDto,
-    @Param('id', ParseIntPipe) id: number,
+    @Param(idMask, ParseIntPipe) id: number,
   ) {
     return this.service.update({ ...data, id });
   }
@@ -59,9 +69,9 @@ export class DictionaryController {
     description: 'Find dictionary values',
   })
   @ApiResponse({ status: 200, type: DictionarySwaggerScheme })
-  @Get('/:id')
+  @Get(getRoute)
   find(
-    @Param('id', ParseIntPipe) id: number,
+    @Param(idMask, ParseIntPipe) id: number,
   ): Promise<DictionarySwaggerScheme | null> {
     return this.service.findById(id);
   }
