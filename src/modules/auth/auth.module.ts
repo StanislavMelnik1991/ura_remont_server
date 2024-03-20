@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { User } from 'database';
+import { User, UserTelegram } from 'database';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { ConfigModule } from '@nestjs/config';
 import { JwtModule } from '@nestjs/jwt';
@@ -13,7 +13,7 @@ import { JwtModule } from '@nestjs/jwt';
     ConfigModule.forRoot({
       envFilePath: `.env`,
     }),
-    TypeOrmModule.forFeature([User]),
+    TypeOrmModule.forFeature([User, UserTelegram]),
     JwtModule.register({
       secret: process.env.JWT_SECRET,
       signOptions: {

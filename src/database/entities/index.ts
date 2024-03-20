@@ -8,3 +8,4 @@ export { ProductPrototype } from './prototype.entity';
 export { PrototypeProperty } from './property.entity';
 export { PropertyValue } from './propertyValue.entity';
 export { User } from './user.entity';
+export { UserTelegram } from './userTelegram.entity';

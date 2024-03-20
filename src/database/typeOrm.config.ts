@@ -10,6 +10,7 @@ import {
   PropertyValue,
   PrototypeProperty,
   User,
+  UserTelegram,
 } from './entities';
 
 export const typeOrmConfig = () => {
@@ -38,6 +39,7 @@ export const typeOrmConfig = () => {
       Characteristic,
       CharacteristicValue,
       User,
+      UserTelegram,
     ],
     logging: false,
     ssl,

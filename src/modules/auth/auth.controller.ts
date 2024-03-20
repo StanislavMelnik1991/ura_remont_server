@@ -1,20 +1,28 @@
-import { Body, Controller, Post, UsePipes } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  ParseIntPipe,
+  Post,
+  UsePipes,
+} from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
-import { AuthDto, TokenScheme } from 'types/swagger';
+import { TelegramAuthDto, TokenScheme } from 'types/swagger';
 import { apiRouter } from 'shared/routes';
 
 const {
-  auth: { scheme, signIn, signup },
-} = apiRouter;
+  telegram: { baseRoute, scheme },
+} = apiRouter.auth;
 
 @ApiTags('Authorization')
 @Controller()
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @ApiOperation({
+  /* @ApiOperation({
     summary: 'Registration user',
   })
   @ApiResponse({ status: 200, type: TokenScheme })
@@ -22,15 +30,33 @@ export class AuthController {
   @UsePipes(new ZodValidationPipe(scheme))
   signup(@Body() data: AuthDto) {
     return this.authService.create(data);
+  } */
+
+  @ApiOperation({
+    summary: 'Authorization user with tg',
+  })
+  @ApiResponse({ status: 200, type: TokenScheme })
+  @Post(baseRoute)
+  @UsePipes(new ZodValidationPipe(scheme))
+  login(@Body() data: TelegramAuthDto) {
+    return this.authService.telegramAuth(data);
   }
 
   @ApiOperation({
-    summary: 'Authorization user',
+    summary: 'Delete user',
   })
   @ApiResponse({ status: 200, type: TokenScheme })
-  @Post(signIn.baseRoute)
-  @UsePipes(new ZodValidationPipe(scheme))
-  login(@Body() data: AuthDto) {
-    return this.authService.login(data);
+  @Delete('api/auth/:id')
+  delete(@Param('id', ParseIntPipe) id: number) {
+    return this.authService.deleteUser(id);
+  }
+
+  @ApiOperation({
+    summary: 'Delete user telegram',
+  })
+  @ApiResponse({ status: 200, type: TokenScheme })
+  @Delete('api/auth/telegram/:id')
+  deleteTg(@Param('id', ParseIntPipe) id: number) {
+    return this.authService.deleteUserTelegram(id);
   }
 }

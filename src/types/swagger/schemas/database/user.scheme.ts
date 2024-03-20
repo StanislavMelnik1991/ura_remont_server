@@ -5,10 +5,7 @@ import { IUser } from 'shared/types';
 
 export class UserSwaggerScheme extends BaseScheme implements IUser {
   @ApiProperty({ example: 'Admin' })
-  login: string;
-
-  @ApiProperty({ example: '123qweQWE' })
-  password: string;
+  name: string;
 
   @ApiProperty({ example: RolesEnum.USER })
   role: RolesEnum;
