@@ -18,6 +18,8 @@ export const typeOrmConfig = () => {
   const database = process.env.POSTGRES_DB;
   const username = process.env.POSTGRES_USER;
   const password = process.env.POSTGRES_PASSWORD;
+  const ssl = !!process.env.POSTGRES_SSL || undefined;
+  const url = process.env.POSTGRES_URL || undefined;
 
   return TypeOrmModule.forRoot({
     host,
@@ -38,6 +40,8 @@ export const typeOrmConfig = () => {
       User,
     ],
     logging: false,
+    ssl,
+    url,
     synchronize: true,
     type: 'postgres',
   });
