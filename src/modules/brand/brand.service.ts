@@ -10,6 +10,7 @@ import { Brand, Dictionary } from 'database';
 import { DictionaryService } from 'modules/dictionary/dictionary.service';
 import { AcceptedLanguagesEnum } from 'shared/constants';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
+import { CreateBrandSchemeType, GetBrandsSchemeType } from 'types/swagger';
 
 @Injectable()
 export class BrandService {
@@ -19,7 +20,7 @@ export class BrandService {
     @InjectRepository(Brand)
     private brandRepository: Repository<Brand>,
   ) {}
-  async create({ description, name }: CreationProps) {
+  async create({ description, name }: CreateBrandSchemeType) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -114,12 +115,23 @@ export class BrandService {
       throw new HttpException({ brand: 'not found' }, HttpStatus.NOT_FOUND);
     }
   }
+
+  async getAllBrands({ page, perPage, searchValue }: GetBrandsSchemeType) {
+    const [data, total] = await this.brandRepository
+      .createQueryBuilder('brand')
+      .leftJoinAndSelect('brand.name', 'name')
+      .leftJoinAndSelect('brand.description', 'description')
+      .where(
+        'LOWER(name.ru) LIKE :searchValue OR LOWER(description.ru) LIKE :searchValue',
+        { searchValue: `%${searchValue}%` },
+      )
+      .take(perPage)
+      .skip(perPage * (page - 1))
+      .getManyAndCount();
+    return { data, total };
+  }
 }
 
-type CreationProps = {
-  name: string;
-  description?: string;
-};
 type UpdateProps = {
   name?: Partial<Record<AcceptedLanguagesEnum, string>>;
   description?: Partial<Record<AcceptedLanguagesEnum, string>>;

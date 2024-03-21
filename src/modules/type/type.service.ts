@@ -11,6 +11,7 @@ import { CharacteristicService } from 'modules/characteristic/characteristic.ser
 import { DictionaryService } from 'modules/dictionary/dictionary.service';
 import { AcceptedLanguagesEnum } from 'shared/constants';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
+import { GetAllTypeSDto } from 'types/swagger';
 
 @Injectable()
 export class TypeService {
@@ -122,6 +123,21 @@ export class TypeService {
     } catch (error) {
       throw new HttpException({ type: 'not found' }, HttpStatus.NOT_FOUND);
     }
+  }
+
+  async getAllTypes({ page, perPage, searchValue }: GetAllTypeSDto) {
+    const [data, total] = await this.typeRepository
+      .createQueryBuilder('type')
+      .leftJoinAndSelect('type.name', 'name')
+      .leftJoinAndSelect('type.description', 'description')
+      .where(
+        'LOWER(name.ru) LIKE :searchValue OR LOWER(description.ru) LIKE :searchValue',
+        { searchValue: `%${searchValue}%` },
+      )
+      .take(perPage)
+      .skip(perPage * (page - 1))
+      .getManyAndCount();
+    return { data, total };
   }
 }
 

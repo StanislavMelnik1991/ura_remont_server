@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
@@ -22,12 +23,14 @@ import {
   AdminBrandSwaggerSchema,
   BrandSwaggerSchema,
   CreateBrandDto,
+  GetAllBrandsDto,
 } from 'types/swagger';
 import { adminRouter } from 'shared/routes';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 
 const {
   create: { baseRoute: creationRoute, scheme },
+  getAll: { baseRoute: getAllRoute, scheme: getAllScheme },
   current: {
     getCurrent: { baseRoute: currentRoute },
     idMask,
@@ -51,6 +54,17 @@ export class BrandController {
   @UsePipes(new ZodValidationPipe(scheme))
   create(@Body() data: CreateBrandDto): Promise<BrandSwaggerSchema> {
     return this.service.create(data);
+  }
+
+  @ApiOperation({
+    summary: 'Get all brands',
+    description: 'Get all brands with dictionaries',
+  })
+  @ApiResponse({ status: 200 })
+  @Get(getAllRoute)
+  @UsePipes(new ZodValidationPipe(getAllScheme))
+  getAll(@Query() data: GetAllBrandsDto) {
+    return this.service.getAllBrands(data);
   }
 
   @ApiOperation({

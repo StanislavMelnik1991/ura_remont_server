@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Query,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
@@ -21,6 +22,7 @@ import { RolesEnum } from 'shared/constants';
 import {
   AdminTypeSwaggerSchema,
   CreateTypeDto,
+  GetAllTypeSDto,
   TypeSwaggerScheme,
 } from 'types/swagger';
 import { adminRouter } from 'shared/routes';
@@ -28,6 +30,7 @@ import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 
 const {
   create,
+  getAll: { baseRoute: getAllRoute, scheme: getAllScheme },
   current: {
     getCurrent: { baseRoute },
     idMask,
@@ -51,6 +54,17 @@ export class TypeController {
   @UsePipes(new ZodValidationPipe(create.scheme))
   create(@Body() data: CreateTypeDto): Promise<TypeSwaggerScheme> {
     return this.service.create(data);
+  }
+
+  @ApiOperation({
+    summary: 'Get all types',
+    description: 'Get all types with dictionaries',
+  })
+  @ApiResponse({ status: 200, type: [AdminTypeSwaggerSchema] })
+  @Get(getAllRoute)
+  @UsePipes(new ZodValidationPipe(getAllScheme))
+  getAll(@Query() data: GetAllTypeSDto) {
+    return this.service.getAllTypes(data);
   }
 
   @ApiOperation({
