@@ -21,8 +21,8 @@ export class AuthDto implements AuthSchemeType {
 }
 
 export class TelegramAuthDto implements TgAuthSchemeType {
-  @ApiProperty({ example: new Date() })
-  auth_date: Date;
+  @ApiProperty({ example: String(Date.now()) })
+  auth_date: string;
 
   @ApiProperty({ example: 'Admin' })
   first_name: string;
@@ -33,8 +33,8 @@ export class TelegramAuthDto implements TgAuthSchemeType {
   @ApiProperty({ example: '1b0b33fe5' })
   hash: string;
 
-  @ApiProperty()
-  id: number;
+  @ApiProperty({ example: '1000' })
+  id: string;
 
   @ApiProperty({ example: 'https://t.me/i/userpic/320/ubTrf.jpg' })
   photo_url: string;

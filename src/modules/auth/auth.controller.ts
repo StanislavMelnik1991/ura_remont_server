@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  UseGuards,
   UsePipes,
 } from '@nestjs/common';
 import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
@@ -12,6 +13,7 @@ import { AuthService } from './auth.service';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 import { TelegramAuthDto, TokenScheme } from 'types/swagger';
 import { apiRouter } from 'shared/routes';
+import { AuthTelegramGuard } from 'guards/authTelegram.guard';
 
 const {
   telegram: { baseRoute, scheme },
@@ -36,6 +38,7 @@ export class AuthController {
     summary: 'Authorization user with tg',
   })
   @ApiResponse({ status: 200, type: TokenScheme })
+  @UseGuards(AuthTelegramGuard)
   @Post(baseRoute)
   @UsePipes(new ZodValidationPipe(scheme))
   login(@Body() data: TelegramAuthDto) {

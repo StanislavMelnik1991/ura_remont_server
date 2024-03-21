@@ -21,22 +21,10 @@ export class AuthService {
     private telegramRepository: Repository<UserTelegram>,
   ) {}
 
-  async create() {
-    // const HASH_ROUNDS = Number(process.env.HASH_ROUNDS);
-    try {
-      /* const hashPassword = await hash(password, HASH_ROUNDS); */
-      const entity = this.userRepository.create();
-      await this.userRepository.save(entity);
-      return this.generateToken(entity);
-    } catch (error) {
-      throw new HttpException(
-        { authorization: 'something wrong' },
-        HttpStatus.CONFLICT,
-      );
-    }
-  }
   async telegramAuth({ id, ...props }: AuthTgProps) {
-    const existed = await this.telegramRepository.findOneBy({ telegramId: id });
+    const existed = await this.telegramRepository.findOneBy({
+      telegramId: Number(id),
+    });
     if (existed) {
       const user = await this.userRepository.findOneBy({ id: existed.userId });
       if (!user) {
@@ -45,19 +33,16 @@ export class AuthService {
       return this.generateToken(user);
     } else {
       const user = this.userRepository.create({
-        role:
-          id === Number(process.env.ADMIN_ID_TG)
-            ? RolesEnum.ADMIN
-            : RolesEnum.USER,
+        role: id === process.env.ADMIN_ID_TG ? RolesEnum.ADMIN : RolesEnum.USER,
         name: props.first_name || props.username,
       });
-      if (id === Number(process.env.ADMIN_ID_TG)) {
+      if (id === process.env.ADMIN_ID_TG) {
         user.role = RolesEnum.ADMIN;
       }
       await this.userRepository.save(user);
       const userTelegram = this.telegramRepository.create({
         ...props,
-        telegramId: id,
+        telegramId: Number(id),
         userId: user.id,
       });
       await this.telegramRepository.save(userTelegram);
@@ -126,10 +111,10 @@ type ChangeRoleProps = {
 };
 
 type AuthTgProps = {
-  id: number;
+  id: string;
   first_name?: string;
   username?: string;
   photo_url?: string;
-  auth_date: Date;
+  auth_date: string;
   hash: string;
 };

@@ -43,6 +43,16 @@
       "database": "ura_remont",
       "username": "stanislav",
       "password": "6w9QBaGgr0SRZrzpsH0WF1zyUY46w5RN"
+    },
+    {
+      "pgOptions": {
+        "ssl": true
+      },
+      "previewLimit": 50,
+      "server": "localhost",
+      "driver": "PostgreSQL",
+      "name": "external",
+      "connectString": "postgres://stanislav:DzvOLyGjJJrhktNmeZmf41wCQ4FJdYNj@dpg-cntaaunsc6pc73cab8gg-a.oregon-postgres.render.com/ura_remont"
     }
   ],
 }
