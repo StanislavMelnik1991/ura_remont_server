@@ -42,8 +42,8 @@ export class BrandService {
         queryRunner.manager.save(ImageList, newImages),
       ]);
       const newBrand = queryRunner.manager.create(Brand, {
-        name: savedName.id,
-        description: savedDescription.id,
+        nameId: savedName.id,
+        descriptionId: savedDescription.id,
         listId: images.id,
       });
       await queryRunner.manager.save(Brand, newBrand);
@@ -105,8 +105,8 @@ export class BrandService {
       throw new NotFoundException();
     }
     const [name, description] = await Promise.all([
-      this.dictionaryService.findById(entity.name),
-      this.dictionaryService.findById(entity.description),
+      this.dictionaryService.findById(entity.nameId),
+      this.dictionaryService.findById(entity.descriptionId),
     ]);
     if (!name || !description) {
       throw new InternalServerErrorException();
@@ -127,7 +127,8 @@ export class BrandService {
       .createQueryBuilder('brand')
       .leftJoinAndSelect('brand.name', 'name')
       .leftJoinAndSelect('brand.description', 'description')
-      .leftJoinAndSelect('brand.images', 'listId')
+      .leftJoinAndSelect('brand.images', 'images')
+      .leftJoinAndSelect('images.images', 'image')
       .where(
         'LOWER(name.ru) LIKE :searchValue OR LOWER(description.ru) LIKE :searchValue',
         { searchValue: `%${searchValue}%` },

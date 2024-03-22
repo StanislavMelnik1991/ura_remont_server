@@ -22,10 +22,9 @@ import { RolesGuard } from 'guards';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesEnum } from 'shared/constants';
 import {
-  AdminTypeSwaggerSchema,
+  TypeSwaggerScheme,
   CreateTypeDto,
   GetAllTypeSDto,
-  TypeSwaggerScheme,
 } from 'types/swagger';
 import { adminRouter } from 'shared/routes';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
@@ -65,7 +64,7 @@ export class TypeController {
     summary: 'Get all types',
     description: 'Get all types with dictionaries',
   })
-  @ApiResponse({ status: 200, type: [AdminTypeSwaggerSchema] })
+  @ApiResponse({ status: 200, type: [TypeSwaggerScheme] })
   @Get(getAllRoute)
   @UsePipes(new ZodValidationPipe(getAllScheme))
   getAll(@Query() data: GetAllTypeSDto) {
@@ -76,11 +75,9 @@ export class TypeController {
     summary: 'Get type',
     description: 'Get type',
   })
-  @ApiResponse({ status: 200, type: AdminTypeSwaggerSchema })
+  @ApiResponse({ status: 200, type: TypeSwaggerScheme })
   @Get(getCurrentRoute)
-  getType(
-    @Param(idMask, ParseIntPipe) id: number,
-  ): Promise<AdminTypeSwaggerSchema> {
+  getType(@Param(idMask, ParseIntPipe) id: number): Promise<TypeSwaggerScheme> {
     return this.service.getType(id);
   }
 

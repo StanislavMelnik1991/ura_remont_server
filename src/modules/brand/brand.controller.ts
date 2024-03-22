@@ -22,7 +22,6 @@ import { Roles } from 'decorators/roles.decorator';
 import { RolesEnum } from 'shared/constants';
 import { RolesGuard } from 'guards';
 import {
-  AdminBrandSwaggerSchema,
   BrandSwaggerSchema,
   CreateBrandDto,
   GetAllBrandsDto,
@@ -76,11 +75,11 @@ export class BrandController {
     summary: 'Get brand',
     description: 'Get brand',
   })
-  @ApiResponse({ status: 200, type: AdminBrandSwaggerSchema })
+  @ApiResponse({ status: 200, type: BrandSwaggerSchema })
   @Get(currentRoute)
   getBrand(
     @Param(idMask, ParseIntPipe) id: number,
-  ): Promise<AdminBrandSwaggerSchema> {
+  ): Promise<BrandSwaggerSchema> {
     return this.service.getBrand(id);
   }
 

@@ -9,14 +9,14 @@ export class BrandSwaggerSchema extends BaseScheme implements IBrand {
     example: 1,
     required: true,
   })
-  name: number;
+  nameId: number;
 
   @ApiProperty({
     description: 'dictionary Id',
     example: 1,
     required: false,
   })
-  description: number;
+  descriptionId: number;
 }
 export class LocalizedBrandSwaggerSchema extends BaseScheme {
   @ApiProperty()

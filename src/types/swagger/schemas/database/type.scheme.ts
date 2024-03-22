@@ -9,14 +9,14 @@ export class TypeSwaggerScheme extends BaseScheme implements IProductType {
     example: 1,
     required: true,
   })
-  name: number;
+  nameId: number;
 
   @ApiProperty({
     description: 'dictionary Id',
     example: 1,
     required: false,
   })
-  description: number;
+  descriptionId: number;
 }
 export class LocalizedTypeSwaggerSchema extends BaseScheme {
   @ApiProperty()

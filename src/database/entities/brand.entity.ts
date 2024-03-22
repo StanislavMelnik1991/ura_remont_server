@@ -16,15 +16,17 @@ export class Brand extends CustomEntity implements IBrand {
 
   @ManyToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({
-    name: 'name',
+    name: 'nameId',
   })
-  @Column()
-  name: number;
+  name: Dictionary;
+  @Column({ nullable: false })
+  nameId: number;
 
   @ManyToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({
-    name: 'description',
+    name: 'descriptionId',
   })
+  description: Dictionary;
   @Column()
-  description: number;
+  descriptionId: number;
 }

@@ -16,15 +16,17 @@ export class TypeEntity extends CustomEntity implements IProductType {
 
   @ManyToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({
-    name: 'name',
+    name: 'nameId',
   })
+  name: Dictionary;
   @Column({ nullable: false })
-  name: number;
+  nameId: number;
 
   @ManyToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({
-    name: 'description',
+    name: 'descriptionId',
   })
+  description: Dictionary;
   @Column()
-  description: number;
+  descriptionId: number;
 }

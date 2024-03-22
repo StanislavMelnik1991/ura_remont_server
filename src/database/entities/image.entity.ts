@@ -9,6 +9,7 @@ export class ImageEntity extends CustomEntity implements IImage {
   @JoinColumn({
     name: 'listId',
   })
+  imageList: ImageList;
   @Column()
   listId: number;
 
