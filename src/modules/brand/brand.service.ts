@@ -2,7 +2,6 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -100,25 +99,26 @@ export class BrandService {
     }
   }
   async getBrand(id: number) {
-    const entity = await this.brandRepository.findOneBy({ id });
-    if (!entity) {
-      throw new NotFoundException();
+    try {
+      const entity = await this.brandRepository
+        .createQueryBuilder('brand')
+        .leftJoinAndSelect('brand.name', 'name')
+        .leftJoinAndSelect('brand.description', 'description')
+        .leftJoinAndSelect('brand.images', 'images')
+        .leftJoinAndSelect('images.images', 'image')
+        .where({ id })
+        .getOneOrFail();
+      return entity;
+    } catch (error) {
+      throw new NotFoundException({ brand: 'not found' });
     }
-    const [name, description] = await Promise.all([
-      this.dictionaryService.findById(entity.nameId),
-      this.dictionaryService.findById(entity.descriptionId),
-    ]);
-    if (!name || !description) {
-      throw new InternalServerErrorException();
-    }
-    return { ...entity, name, description };
   }
 
   async findByIdOrFail(id: number) {
     try {
       return await this.brandRepository.findOneByOrFail({ id });
     } catch (error) {
-      throw new HttpException({ brand: 'not found' }, HttpStatus.NOT_FOUND);
+      throw new NotFoundException({ brand: 'not found' });
     }
   }
 

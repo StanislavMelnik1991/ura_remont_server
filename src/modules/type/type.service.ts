@@ -2,7 +2,6 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -105,18 +104,19 @@ export class TypeService {
   }
 
   async getType(id: number) {
-    const entity = await this.typeRepository.findOneBy({ id });
-    if (!entity) {
-      throw new NotFoundException();
+    try {
+      const entity = await this.typeRepository
+        .createQueryBuilder('type')
+        .leftJoinAndSelect('type.name', 'name')
+        .leftJoinAndSelect('type.description', 'description')
+        .leftJoinAndSelect('type.images', 'images')
+        .leftJoinAndSelect('images.images', 'image')
+        .where({ id })
+        .getOneOrFail();
+      return entity;
+    } catch (error) {
+      throw new NotFoundException({ type: 'not found' });
     }
-    const [name, description] = await Promise.all([
-      this.dictionaryService.findById(entity.nameId),
-      this.dictionaryService.findById(entity.descriptionId),
-    ]);
-    if (!name || !description) {
-      throw new InternalServerErrorException();
-    }
-    return { ...entity, name, description };
   }
 
   findProperties(typeId: number) {
