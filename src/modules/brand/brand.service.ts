@@ -127,7 +127,7 @@ export class BrandService {
       .createQueryBuilder('brand')
       .leftJoinAndSelect('brand.name', 'name')
       .leftJoinAndSelect('brand.description', 'description')
-      .leftJoinAndSelect('type.images', 'listId')
+      .leftJoinAndSelect('brand.images', 'listId')
       .where(
         'LOWER(name.ru) LIKE :searchValue OR LOWER(description.ru) LIKE :searchValue',
         { searchValue: `%${searchValue}%` },
