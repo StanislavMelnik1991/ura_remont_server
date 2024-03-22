@@ -18,11 +18,7 @@ import { DictionaryService } from './dictionary.service';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesEnum } from 'shared/constants';
 import { RolesGuard } from 'guards';
-import {
-  DictionarySwaggerScheme,
-  LocaleParamsDto,
-  UpdateDictionaryDto,
-} from 'types/swagger';
+import { DictionarySwaggerScheme, UpdateDictionaryDto } from 'types/swagger';
 import { adminRouter } from 'shared/routes';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 
@@ -58,8 +54,8 @@ export class DictionaryController {
   @Patch(updateRoute)
   @UsePipes(new ZodValidationPipe(scheme))
   update(
-    @Body() data: UpdateDictionaryDto,
     @Param(idMask, ParseIntPipe) id: number,
+    @Body() data: UpdateDictionaryDto,
   ) {
     return this.service.update({ ...data, id });
   }
@@ -74,16 +70,5 @@ export class DictionaryController {
     @Param(idMask, ParseIntPipe) id: number,
   ): Promise<DictionarySwaggerScheme | null> {
     return this.service.findById(id);
-  }
-
-  @ApiOperation({
-    summary: 'Update existed translation',
-    description: 'Only for staff',
-  })
-  @ApiResponse({ status: 200, type: String })
-  @Get('/:locale/locale')
-  localized(@Param() { locale }: LocaleParamsDto) {
-    /*  console.log(routes.admin.type.current.getRoute(1)); */
-    return { locale };
   }
 }
