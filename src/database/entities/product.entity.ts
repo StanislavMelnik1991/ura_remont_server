@@ -9,7 +9,7 @@ export class Product extends CustomEntity implements IProduct {
   @JoinColumn({
     name: 'prototypeId',
   })
-  @Column({ nullable: true })
+  @Column()
   prototypeId: number;
 
   @Column({ unique: true })

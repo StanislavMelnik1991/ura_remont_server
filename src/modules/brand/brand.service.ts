@@ -6,8 +6,9 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Brand, Dictionary } from 'database';
+import { Brand, Dictionary, ImageList } from 'database';
 import { DictionaryService } from 'modules/dictionary/dictionary.service';
+import { ImageService } from 'modules/image/image.service';
 import { AcceptedLanguagesEnum } from 'shared/constants';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
 import { CreateBrandSchemeType, GetBrandsSchemeType } from 'types/swagger';
@@ -17,6 +18,8 @@ export class BrandService {
   constructor(
     private dataSource: DataSource,
     private dictionaryService: DictionaryService,
+    private imageService: ImageService,
+
     @InjectRepository(Brand)
     private brandRepository: Repository<Brand>,
   ) {}
@@ -26,19 +29,22 @@ export class BrandService {
     await queryRunner.startTransaction();
 
     try {
+      const newImages = queryRunner.manager.create(ImageList);
       const newName = queryRunner.manager.create(Dictionary, {
         ru: name,
       });
       const newDescription = queryRunner.manager.create(Dictionary, {
         ru: description,
       });
-      const [savedName, savedDescription] = await Promise.all([
+      const [savedName, savedDescription, images] = await Promise.all([
         queryRunner.manager.save(Dictionary, newName),
         queryRunner.manager.save(Dictionary, newDescription),
+        queryRunner.manager.save(ImageList, newImages),
       ]);
       const newBrand = queryRunner.manager.create(Brand, {
         name: savedName.id,
         description: savedDescription.id,
+        listId: images.id,
       });
       await queryRunner.manager.save(Brand, newBrand);
 
@@ -121,6 +127,7 @@ export class BrandService {
       .createQueryBuilder('brand')
       .leftJoinAndSelect('brand.name', 'name')
       .leftJoinAndSelect('brand.description', 'description')
+      .leftJoinAndSelect('type.images', 'listId')
       .where(
         'LOWER(name.ru) LIKE :searchValue OR LOWER(description.ru) LIKE :searchValue',
         { searchValue: `%${searchValue}%` },
@@ -130,6 +137,23 @@ export class BrandService {
       .getManyAndCount();
     return { data, total };
   }
+  async uploadImage({ data, id }: UploadImageProps) {
+    const type = await this.brandRepository.findOneBy({ id });
+    if (!type) {
+      throw new NotFoundException(`brand with id: ${id}`);
+    }
+    const basePath = `brand/${id}`;
+    return this.imageService.addImageToList({
+      basePath,
+      data,
+      listId: type.listId,
+    });
+  }
+}
+
+interface UploadImageProps {
+  id: number;
+  data: Buffer;
 }
 
 type UpdateProps = {

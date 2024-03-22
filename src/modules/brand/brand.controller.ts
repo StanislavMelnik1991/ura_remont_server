@@ -6,7 +6,9 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  UploadedFile,
   UseGuards,
+  UseInterceptors,
   UsePipes,
 } from '@nestjs/common';
 import {
@@ -27,12 +29,15 @@ import {
 } from 'types/swagger';
 import { adminRouter } from 'shared/routes';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { ONE_MB_IN_BYTES } from 'shared/constants/file.constants';
 
 const {
   create: { baseRoute: creationRoute, scheme },
   getAll: { baseRoute: getAllRoute, scheme: getAllScheme },
   current: {
     getCurrent: { baseRoute: currentRoute },
+    upload: { baseRoute: uploadRoute },
     idMask,
   },
 } = adminRouter.brand;
@@ -77,5 +82,23 @@ export class BrandController {
     @Param(idMask, ParseIntPipe) id: number,
   ): Promise<AdminBrandSwaggerSchema> {
     return this.service.getBrand(id);
+  }
+
+  @ApiOperation({
+    summary: 'Upload image',
+    description: 'Upload type image',
+  })
+  @ApiResponse({ status: 200 })
+  @Post(uploadRoute)
+  @UseInterceptors(
+    FileInterceptor('file', {
+      limits: { files: 1, fileSize: 4 * ONE_MB_IN_BYTES },
+    }),
+  )
+  uploadImage(
+    @UploadedFile() file: Express.Multer.File,
+    @Param(idMask, ParseIntPipe) id: number,
+  ) {
+    return this.service.uploadImage({ data: file.buffer, id });
   }
 }

@@ -9,3 +9,5 @@ export { PrototypeProperty } from './property.entity';
 export { PropertyValue } from './propertyValue.entity';
 export { User } from './user.entity';
 export { UserTelegram } from './userTelegram.entity';
+export { ImageEntity } from './image.entity';
+export { ImageList } from './imageList.entity';

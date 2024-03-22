@@ -6,9 +6,10 @@ import {
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Dictionary, ProductType } from 'database';
+import { Dictionary, ImageList, ProductType } from 'database';
 import { CharacteristicService } from 'modules/characteristic/characteristic.service';
 import { DictionaryService } from 'modules/dictionary/dictionary.service';
+import { ImageService } from 'modules/image/image.service';
 import { AcceptedLanguagesEnum } from 'shared/constants';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
 import { GetAllTypeSDto } from 'types/swagger';
@@ -19,6 +20,7 @@ export class TypeService {
     private dataSource: DataSource,
     private characteristicService: CharacteristicService,
     private dictionaryService: DictionaryService,
+    private imageService: ImageService,
 
     @InjectRepository(ProductType)
     private typeRepository: Repository<ProductType>,
@@ -29,19 +31,22 @@ export class TypeService {
     await queryRunner.startTransaction();
 
     try {
+      const newImages = queryRunner.manager.create(ImageList);
       const newName = queryRunner.manager.create(Dictionary, {
         ru: name,
       });
       const newDescription = queryRunner.manager.create(Dictionary, {
         ru: description,
       });
-      const [savedName, savedDescription] = await Promise.all([
+      const [savedName, savedDescription, imageList] = await Promise.all([
         queryRunner.manager.save(Dictionary, newName),
         queryRunner.manager.save(Dictionary, newDescription),
+        queryRunner.manager.save(ImageList, newImages),
       ]);
       const newType = queryRunner.manager.create(ProductType, {
         name: savedName.id,
         description: savedDescription.id,
+        listId: imageList.id,
       });
       await queryRunner.manager.save(ProductType, newType);
 
@@ -130,6 +135,7 @@ export class TypeService {
       .createQueryBuilder('type')
       .leftJoinAndSelect('type.name', 'name')
       .leftJoinAndSelect('type.description', 'description')
+      .leftJoinAndSelect('type.images', 'listId')
       .where(
         'LOWER(name.ru) LIKE :searchValue OR LOWER(description.ru) LIKE :searchValue',
         { searchValue: `%${searchValue}%` },
@@ -139,6 +145,24 @@ export class TypeService {
       .getManyAndCount();
     return { data, total };
   }
+
+  async uploadImage({ data, id }: UploadImageProps) {
+    const type = await this.typeRepository.findOneBy({ id });
+    if (!type) {
+      throw new NotFoundException(`type with id: ${id}`);
+    }
+    const basePath = `type/${id}`;
+    return this.imageService.addImageToList({
+      basePath,
+      data,
+      listId: type.listId,
+    });
+  }
+}
+
+interface UploadImageProps {
+  id: number;
+  data: Buffer;
 }
 
 type CreationProps = {

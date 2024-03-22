@@ -12,6 +12,8 @@ import {
   User,
   UserTelegram,
 } from './entities';
+import { ImageEntity } from './entities/image.entity';
+import { ImageList } from './entities/imageList.entity';
 
 export const typeOrmConfig = () => {
   const host = process.env.POSTGRES_HOST;
@@ -40,6 +42,8 @@ export const typeOrmConfig = () => {
       CharacteristicValue,
       User,
       UserTelegram,
+      ImageList,
+      ImageEntity,
     ],
     logging: false,
     ssl,

@@ -6,6 +6,7 @@ import { CharacteristicModule } from 'modules/characteristic/characteristic.modu
 import { DictionaryModule } from 'modules/dictionary/dictionary.module';
 import { ProductType } from 'database';
 import { AuthModule } from 'modules/auth';
+import { ImageModule } from 'modules/image/image.module';
 
 @Module({
   controllers: [TypeController],
@@ -15,6 +16,7 @@ import { AuthModule } from 'modules/auth';
     DictionaryModule,
     CharacteristicModule,
     AuthModule,
+    ImageModule,
   ],
   exports: [TypeService],
 })

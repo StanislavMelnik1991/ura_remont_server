@@ -1,4 +1,9 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CharacteristicValueService } from 'modules/characteristicValues/characteristicValue.service';
 import { PropertyService } from 'modules/property/property.service';
@@ -6,9 +11,10 @@ import { AcceptedLanguagesEnum } from 'shared/constants';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
 import { DictionaryService } from 'modules/dictionary/dictionary.service';
 import { ProductService } from 'modules/product/product.service';
-import { Dictionary, ProductPrototype } from 'database';
+import { Dictionary, ImageList, ProductPrototype } from 'database';
 import { BrandService } from 'modules/brand';
 import { TypeService } from 'modules/type';
+import { ImageService } from 'modules/image/image.service';
 
 @Injectable()
 export class PrototypeService {
@@ -21,6 +27,7 @@ export class PrototypeService {
     private productService: ProductService,
     private brandService: BrandService,
     private typeService: TypeService,
+    private imageService: ImageService,
 
     @InjectRepository(ProductPrototype)
     private prototypeRepository: Repository<ProductPrototype>,
@@ -42,6 +49,7 @@ export class PrototypeService {
     await queryRunner.startTransaction();
 
     try {
+      const newImages = queryRunner.manager.create(ImageList);
       const newName = queryRunner.manager.create(Dictionary, {
         ru: name,
         be: name,
@@ -52,9 +60,10 @@ export class PrototypeService {
       const newDescription = queryRunner.manager.create(Dictionary, {
         ru: description,
       });
-      const [savedName, savedDescription] = await Promise.all([
+      const [savedName, savedDescription, imageList] = await Promise.all([
         queryRunner.manager.save(Dictionary, newName),
         queryRunner.manager.save(Dictionary, newDescription),
+        queryRunner.manager.save(ImageList, newImages),
       ]);
       const entity = queryRunner.manager.create(ProductPrototype, {
         name: savedName.id,
@@ -62,6 +71,7 @@ export class PrototypeService {
         image,
         brandId,
         typeId,
+        listId: imageList.id,
       });
       await queryRunner.manager.save(ProductPrototype, entity);
 
@@ -166,6 +176,24 @@ export class PrototypeService {
       }),
     );
   }
+
+  async uploadImage({ data, id }: UploadImageProps) {
+    const type = await this.prototypeRepository.findOneBy({ id });
+    if (!type) {
+      throw new NotFoundException(`prototype with id: ${id}`);
+    }
+    const basePath = `prototype/${id}`;
+    return this.imageService.addImageToList({
+      basePath,
+      data,
+      listId: type.listId,
+    });
+  }
+}
+
+interface UploadImageProps {
+  id: number;
+  data: Buffer;
 }
 
 type CreationProps = {

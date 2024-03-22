@@ -4,9 +4,18 @@ import { TypeEntity } from './type.entity';
 import { Dictionary } from './dictionary.entity';
 import { CustomEntity } from './base.entity';
 import { IPrototype } from 'shared/types';
+import { ImageList } from './imageList.entity';
 
 @Entity('prototypes')
 export class ProductPrototype extends CustomEntity implements IPrototype {
+  @ManyToOne(() => ImageList, (el) => el.id)
+  @JoinColumn({
+    name: 'listId',
+  })
+  images: ImageList;
+  @Column()
+  listId: number;
+
   @ManyToOne(() => Brand, (dict) => dict.id)
   @JoinColumn({
     name: 'brandId',

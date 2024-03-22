@@ -10,6 +10,7 @@ import { ProductPrototype } from 'database';
 import { TypeModule } from 'modules/type';
 import { BrandModule } from 'modules/brand';
 import { AuthModule } from 'modules/auth';
+import { ImageModule } from 'modules/image/image.module';
 
 @Module({
   controllers: [PrototypeController],
@@ -23,6 +24,7 @@ import { AuthModule } from 'modules/auth';
     BrandModule,
     TypeModule,
     AuthModule,
+    ImageModule,
   ],
   exports: [PrototypeService],
 })
