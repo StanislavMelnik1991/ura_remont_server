@@ -19,7 +19,7 @@ import { Roles } from 'decorators/roles.decorator';
 import { RolesEnum } from 'shared/constants';
 import { RolesGuard } from 'guards';
 import { DictionarySwaggerScheme, UpdateDictionaryDto } from 'types/swagger';
-import { adminRouter } from 'shared/routeR';
+import { adminRouter } from 'shared/router';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 import { dictionaryUpdateScheme } from 'shared/schemas';
 
