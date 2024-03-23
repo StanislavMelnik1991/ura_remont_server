@@ -1,7 +1,8 @@
 import {
   HttpException,
-  HttpStatus,
   Injectable,
+  InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,11 +11,11 @@ import { PropertyService } from 'modules/property/property.service';
 import { AcceptedLanguagesEnum } from 'shared/constants';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
 import { DictionaryService } from 'modules/dictionary/dictionary.service';
-import { ProductService } from 'modules/product/product.service';
 import { Dictionary, ImageList, ProductPrototype } from 'database';
 import { BrandService } from 'modules/brand';
 import { TypeService } from 'modules/type';
 import { ImageService } from 'modules/image/image.service';
+import { IUser } from 'shared/types';
 
 @Injectable()
 export class PrototypeService {
@@ -24,7 +25,6 @@ export class PrototypeService {
     private propertyService: PropertyService,
     private dictionaryService: DictionaryService,
     private valueService: CharacteristicValueService,
-    private productService: ProductService,
     private brandService: BrandService,
     private typeService: TypeService,
     private imageService: ImageService,
@@ -36,10 +36,17 @@ export class PrototypeService {
     try {
       return this.prototypeRepository.findOneByOrFail({ id });
     } catch (error) {
-      throw new HttpException({ prototype: 'not found' }, HttpStatus.NOT_FOUND);
+      throw new NotFoundException({ prototype: 'not found' });
     }
   }
-  async create({ description, name, brandId, typeId, image }: CreationProps) {
+  async create({
+    description,
+    name,
+    brandId,
+    typeId,
+    image,
+    user,
+  }: CreationProps) {
     await Promise.all([
       this.typeService.findByIdOrFail(typeId),
       this.brandService.findByIdOrFail(brandId),
@@ -76,19 +83,25 @@ export class PrototypeService {
       await queryRunner.manager.save(ProductPrototype, entity);
 
       await queryRunner.commitTransaction();
+
+      Logger.log(
+        `user id: ${user.id} upload new ProductPrototype id: ${entity.id}`,
+        'ProductPrototype',
+      );
       return { id: entity.id };
     } catch (err) {
       await queryRunner.rollbackTransaction();
       if (err instanceof HttpException) {
         throw new HttpException(err.getResponse(), err.getStatus());
       }
-      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
+      Logger.error(`InternalServerErrorException`, 'Prototype');
+      throw new InternalServerErrorException();
     } finally {
       await queryRunner.release();
     }
   }
 
-  async update({ description, name, id }: UpdateProps) {
+  async update({ description, name, id, user }: UpdateProps) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -98,7 +111,8 @@ export class PrototypeService {
         id,
       });
       if (!entity) {
-        throw new HttpException({ type: 'not found' }, HttpStatus.NOT_FOUND);
+        Logger.warn(`Prototype not found`, 'Prototype');
+        throw new NotFoundException({ type: 'not found' });
       }
       const { name: nameId, description: descriptionId } = entity;
       const jobs: Array<Promise<UpdateResult>> = [];
@@ -119,14 +133,18 @@ export class PrototypeService {
       await Promise.all(jobs);
 
       await queryRunner.commitTransaction();
-
+      Logger.log(
+        `user id: ${user.id} upload new ProductPrototype id: ${entity.id}`,
+        'ProductPrototype',
+      );
       return { id };
     } catch (err) {
       await queryRunner.rollbackTransaction();
       if (err instanceof HttpException) {
         throw new HttpException(err.getResponse(), err.getStatus());
       }
-      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
+      Logger.error(`InternalServerErrorException`, 'Prototype');
+      throw new InternalServerErrorException();
     } finally {
       await queryRunner.release();
     }
@@ -151,7 +169,8 @@ export class PrototypeService {
       id: prototypeId,
     });
     if (!prototype) {
-      throw new HttpException({ prototype: 'not found' }, HttpStatus.NOT_FOUND);
+      Logger.warn(`Prototype not found`, 'Prototype');
+      throw new NotFoundException({ prototype: 'not found' });
     }
     const properties = await this.typeService.findProperties(prototype.typeId);
 
@@ -177,16 +196,18 @@ export class PrototypeService {
     );
   }
 
-  async uploadImage({ data, id }: UploadImageProps) {
+  async uploadImage({ data, id, user }: UploadImageProps) {
     const type = await this.prototypeRepository.findOneBy({ id });
     if (!type) {
-      throw new NotFoundException(`prototype with id: ${id}`);
+      Logger.error(`InternalServerErrorException`, 'Prototype');
+      throw new NotFoundException({ prototype: id });
     }
     const basePath = `prototype/${id}`;
     return this.imageService.addImageToList({
       basePath,
       data,
       listId: type.listId,
+      userId: user.id,
     });
   }
 }
@@ -194,6 +215,7 @@ export class PrototypeService {
 interface UploadImageProps {
   id: number;
   data: Buffer;
+  user: IUser;
 }
 
 type CreationProps = {
@@ -202,12 +224,14 @@ type CreationProps = {
   brandId: number;
   typeId: number;
   image?: string;
+  user: IUser;
 };
 
 type UpdateProps = {
   name?: Partial<Record<AcceptedLanguagesEnum, string>>;
   description?: Partial<Record<AcceptedLanguagesEnum, string>>;
   id: number;
+  user: IUser;
 };
 
 type CreationPropertyProps = {
@@ -216,4 +240,5 @@ type CreationPropertyProps = {
   suffix: string;
   isFilter?: boolean;
   display?: boolean;
+  user: IUser;
 };

@@ -1,8 +1,14 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dictionary, PrototypeProperty } from 'database';
 import { DictionaryService } from 'modules/dictionary/dictionary.service';
 import { PropertyValueService } from 'modules/propertyValue/propertyValue.service';
+import { IUser } from 'shared/types';
 import { DataSource, Repository } from 'typeorm';
 
 @Injectable()
@@ -22,6 +28,7 @@ export class PropertyService {
     prototypeId,
     display,
     isFilter,
+    user,
   }: CreationPropertyProps) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -48,10 +55,16 @@ export class PropertyService {
       await queryRunner.manager.save(PrototypeProperty, entity);
 
       await queryRunner.commitTransaction();
+
+      Logger.log(
+        `user id: ${user.id} upload new Product id: ${entity.id}`,
+        'PrototypeProperty',
+      );
       return { id: entity.id };
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
+      Logger.error(`InternalServerErrorException`, 'PrototypeProperty');
+      throw new InternalServerErrorException();
     } finally {
       await queryRunner.release();
     }
@@ -63,7 +76,8 @@ export class PropertyService {
     try {
       return this.propertyRepository.findOneByOrFail({ id });
     } catch (error) {
-      throw new HttpException({ property: 'not found' }, HttpStatus.NOT_FOUND);
+      Logger.warn(`property not found`, 'PrototypeProperty');
+      throw new NotFoundException({ property: 'not found' });
     }
   }
 }
@@ -74,4 +88,5 @@ type CreationPropertyProps = {
   suffix: string;
   isFilter?: boolean;
   display?: boolean;
+  user: IUser;
 };

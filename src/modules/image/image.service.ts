@@ -20,12 +20,12 @@ export class ImageService {
     return this.listRepository.save(entity);
   }
 
-  async addImageToList({ basePath, data, listId }: CreatingImageProps) {
+  async addImageToList({ basePath, data, listId, userId }: CreatingImageProps) {
     const bucket = storage().bucket();
     const filePath = `${basePath}/${Date.now()}`;
     const file = bucket.file(filePath);
     await file.save(data, { private: false }).catch((err) => {
-      Logger.error(err.message);
+      Logger.error(err.message, 'Image');
     });
     const url = await getDownloadURL(file);
     const entity = this.imageRepository.create({
@@ -33,6 +33,7 @@ export class ImageService {
       image: url,
       filePath,
     });
+    Logger.log(`user id: ${userId} upload new image id: ${entity.id}`, 'Brand');
     return this.imageRepository.save(entity);
   }
 }
@@ -41,4 +42,5 @@ interface CreatingImageProps {
   listId: number;
   basePath: string;
   data: string | Buffer | PipelineSource<string | Buffer>;
+  userId: number;
 }

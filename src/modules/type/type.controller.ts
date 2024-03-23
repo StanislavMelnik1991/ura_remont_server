@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -31,12 +32,11 @@ import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ONE_MB_IN_BYTES } from 'shared/constants';
 import { typeCreateScheme, typeGetAllScheme } from 'shared/schemas';
+import { IUser } from 'shared/types';
 
 const { create, getAll, getOne, uploadImage } = adminRouter.type;
 
 @ApiTags('Admins commands', 'Type')
-@Roles(RolesEnum.ADMIN)
-@UseGuards(RolesGuard)
 @ApiBearerAuth()
 @Controller()
 export class TypeController {
@@ -48,9 +48,14 @@ export class TypeController {
   })
   @ApiResponse({ status: 200, type: TypeSwaggerScheme })
   @Post(create.route)
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
   @UsePipes(new ZodValidationPipe(typeCreateScheme))
-  create(@Body() data: CreateTypeDto): Promise<TypeSwaggerScheme> {
-    return this.service.create(data);
+  create(
+    @Body() data: CreateTypeDto,
+    @Req() { user }: { user: IUser },
+  ): Promise<TypeSwaggerScheme> {
+    return this.service.create({ ...data, user });
   }
 
   @ApiOperation({
@@ -82,6 +87,8 @@ export class TypeController {
   })
   @ApiResponse({ status: 200 })
   @Post(uploadImage.route)
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { files: 1, fileSize: 4 * ONE_MB_IN_BYTES },
@@ -90,7 +97,8 @@ export class TypeController {
   uploadImage(
     @UploadedFile() file: Express.Multer.File,
     @Param(uploadImage.mask, ParseIntPipe) id: number,
+    @Req() { user }: { user: IUser },
   ) {
-    return this.service.uploadImage({ data: file.buffer, id });
+    return this.service.uploadImage({ data: file.buffer, id, user });
   }
 }

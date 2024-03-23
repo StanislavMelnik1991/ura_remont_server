@@ -1,6 +1,4 @@
 import {
-  HttpException,
-  HttpStatus,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -29,6 +27,7 @@ export class AuthService {
     if (existed) {
       const user = await this.userRepository.findOneBy({ id: existed.userId });
       if (!user) {
+        Logger.warn('user not found');
         throw new InternalServerErrorException();
       }
       Logger.log(`${props.username} in logging`, 'auth');
@@ -52,23 +51,6 @@ export class AuthService {
       return this.generateToken(user);
     }
   }
-  /* async login({ login, password }: AuthProps) {
-    const entity = await this.userRepository.findOneBy({ login: login });
-    if (!entity) {
-      throw new HttpException(
-        { authorization: 'incorrect login or password' },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    const comparePassword = compareSync(password, entity.password);
-    if (!comparePassword) {
-      throw new HttpException(
-        { authorization: 'incorrect login or password' },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    return this.generateToken(entity);
-  } */
 
   verifyUser(token: string) {
     return this.jwtService.verify<JwtPayloadType>(token);
@@ -79,10 +61,8 @@ export class AuthService {
       await this.userRepository.update({ id }, { role });
       return { id };
     } catch (error) {
-      throw new HttpException(
-        'INTERNAL_SERVER_ERROR',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      Logger.error('InternalServerErrorException');
+      throw new InternalServerErrorException();
     }
   }
 
@@ -99,6 +79,7 @@ export class AuthService {
   async deleteUserTelegram(id: number) {
     const telegram = await this.telegramRepository.findOneBy({ id });
     if (!telegram) {
+      Logger.warn('users telegram not found');
       throw new NotFoundException();
     }
     await this.telegramRepository.delete({ id });

@@ -1,7 +1,8 @@
 import {
   HttpException,
-  HttpStatus,
   Injectable,
+  InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,6 +11,7 @@ import { CharacteristicService } from 'modules/characteristic/characteristic.ser
 import { DictionaryService } from 'modules/dictionary/dictionary.service';
 import { ImageService } from 'modules/image/image.service';
 import { AcceptedLanguagesEnum } from 'shared/constants';
+import { IUser } from 'shared/types';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
 import { GetAllTypeSDto } from 'types/swagger';
 
@@ -24,7 +26,7 @@ export class TypeService {
     @InjectRepository(ProductType)
     private typeRepository: Repository<ProductType>,
   ) {}
-  async create({ description, name }: CreationProps) {
+  async create({ description, name, user }: CreationProps) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -50,16 +52,21 @@ export class TypeService {
       await queryRunner.manager.save(ProductType, newType);
 
       await queryRunner.commitTransaction();
+      Logger.log(
+        `user id: ${user.id} upload new ProductType id: ${newType.id}`,
+        'ProductType',
+      );
       return newType;
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
+      Logger.error(`InternalServerErrorException`, 'ProductType');
+      throw new InternalServerErrorException();
     } finally {
       await queryRunner.release();
     }
   }
 
-  async update({ description, name, id }: UpdateProps) {
+  async update({ description, name, id, user }: UpdateProps) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -69,7 +76,8 @@ export class TypeService {
         id,
       });
       if (!productType) {
-        throw new HttpException({ type: 'not found' }, HttpStatus.NOT_FOUND);
+        Logger.warn(`not found`, 'ProductType');
+        throw new NotFoundException({ type: 'not found' });
       }
       const { name: nameId, description: descriptionId } = productType;
       const jobs: Array<Promise<UpdateResult>> = [];
@@ -90,14 +98,18 @@ export class TypeService {
       await Promise.all(jobs);
 
       await queryRunner.commitTransaction();
-
+      Logger.log(
+        `user id: ${user.id} upload new ProductType id: ${id}`,
+        'ProductType',
+      );
       return { id };
     } catch (err) {
       await queryRunner.rollbackTransaction();
       if (err instanceof HttpException) {
         throw new HttpException(err.getResponse(), err.getStatus());
       }
-      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
+      Logger.error(`InternalServerErrorException`, 'ProductType');
+      throw new InternalServerErrorException();
     } finally {
       await queryRunner.release();
     }
@@ -126,7 +138,8 @@ export class TypeService {
     try {
       return await this.typeRepository.findOneByOrFail({ id });
     } catch (error) {
-      throw new HttpException({ type: 'not found' }, HttpStatus.NOT_FOUND);
+      Logger.warn(`not found`, 'ProductType');
+      throw new NotFoundException({ type: 'not found' });
     }
   }
 
@@ -147,9 +160,10 @@ export class TypeService {
     return { data, total };
   }
 
-  async uploadImage({ data, id }: UploadImageProps) {
+  async uploadImage({ data, id, user }: UploadImageProps) {
     const type = await this.typeRepository.findOneBy({ id });
     if (!type) {
+      Logger.warn(`not found`, 'ProductType');
       throw new NotFoundException(`type with id: ${id}`);
     }
     const basePath = `type/${id}`;
@@ -157,6 +171,7 @@ export class TypeService {
       basePath,
       data,
       listId: type.listId,
+      userId: user.id,
     });
   }
 }
@@ -164,15 +179,18 @@ export class TypeService {
 interface UploadImageProps {
   id: number;
   data: Buffer;
+  user: IUser;
 }
 
 type CreationProps = {
   name: string;
   description?: string;
+  user: IUser;
 };
 
 type UpdateProps = {
   name?: Partial<Record<AcceptedLanguagesEnum, string>>;
   description?: Partial<Record<AcceptedLanguagesEnum, string>>;
   id: number;
+  user: IUser;
 };

@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -31,13 +32,12 @@ import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ONE_MB_IN_BYTES } from 'shared/constants';
 import { propertyCreateScheme, prototypeCreateScheme } from 'shared/schemas';
+import { IUser } from 'shared/types';
 
 const { create, getOne, uploadImage } = adminRouter.prototype;
 const { createProperty, getAll } = adminRouter.property;
 
 @ApiTags('Admins commands', 'Prototype')
-@Roles(RolesEnum.ADMIN)
-@UseGuards(RolesGuard)
 @ApiBearerAuth()
 @Controller()
 export class PrototypeController {
@@ -49,9 +49,11 @@ export class PrototypeController {
   })
   @ApiResponse({ status: 200 })
   @Post(create.route)
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
   @UsePipes(new ZodValidationPipe(prototypeCreateScheme))
-  create(@Body() data: CreatePrototypeDto) {
-    return this.service.create(data);
+  create(@Body() data: CreatePrototypeDto, @Req() { user }: { user: IUser }) {
+    return this.service.create({ ...data, user });
   }
 
   @ApiOperation({
@@ -86,9 +88,14 @@ export class PrototypeController {
   @ApiResponse({ status: 200 })
   @ApiTags('Properties')
   @Post(createProperty.route)
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
   @UsePipes(new ZodValidationPipe(propertyCreateScheme))
-  createProperty(@Body() data: CreatePropertyDto) {
-    return this.service.createProperty(data);
+  createProperty(
+    @Body() data: CreatePropertyDto,
+    @Req() { user }: { user: IUser },
+  ) {
+    return this.service.createProperty({ ...data, user });
   }
 
   @ApiOperation({
@@ -97,6 +104,8 @@ export class PrototypeController {
   })
   @ApiResponse({ status: 200 })
   @Post(uploadImage.route)
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { files: 1, fileSize: 4 * ONE_MB_IN_BYTES },
@@ -105,7 +114,8 @@ export class PrototypeController {
   uploadImage(
     @UploadedFile() file: Express.Multer.File,
     @Param(uploadImage.mask, ParseIntPipe) id: number,
+    @Req() { user }: { user: IUser },
   ) {
-    return this.service.uploadImage({ data: file.buffer, id });
+    return this.service.uploadImage({ data: file.buffer, id, user });
   }
 }

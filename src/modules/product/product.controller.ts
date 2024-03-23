@@ -5,6 +5,7 @@ import {
   ParseIntPipe,
   Patch,
   Post,
+  Req,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
@@ -30,13 +31,12 @@ import {
   productUpdateScheme,
   propertyValueCreateScheme,
 } from 'shared/schemas';
+import { IUser } from 'shared/types';
 
 const { create, update } = adminRouter.product;
 const { create: createValue } = adminRouter.propertyValues;
 
 @ApiTags('Admins commands', 'Product')
-@Roles(RolesEnum.ADMIN)
-@UseGuards(RolesGuard)
 @ApiBearerAuth()
 @Controller()
 export class ProductController {
@@ -48,9 +48,11 @@ export class ProductController {
   })
   @ApiResponse({ status: 200 })
   @Post(create.route)
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
   @UsePipes(new ZodValidationPipe(productCreateScheme))
-  create(@Body() data: CreateProductDto) {
-    return this.service.create(data);
+  create(@Body() data: CreateProductDto, @Req() { user }: { user: IUser }) {
+    return this.service.create({ ...data, user });
   }
 
   @ApiOperation({
@@ -59,12 +61,15 @@ export class ProductController {
   })
   @ApiResponse({ status: 200 })
   @Patch(update.route)
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
   @UsePipes(new ZodValidationPipe(productUpdateScheme))
   update(
     @Body() data: UpdateProductDto,
-    @Param(update.mask, ParseIntPipe) productId: number,
+    @Param(update.mask, ParseIntPipe) id: number,
+    @Req() { user }: { user: IUser },
   ) {
-    return this.service.update({ ...data, id: productId });
+    return this.service.update({ ...data, id, user });
   }
 
   @ApiOperation({
@@ -74,8 +79,13 @@ export class ProductController {
   @ApiResponse({ status: 200 })
   @ApiTags('Properties')
   @Post(createValue.route)
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
   @UsePipes(new ZodValidationPipe(propertyValueCreateScheme))
-  createValue(@Body() data: CreatePropertyValueDto) {
-    return this.service.createValue(data);
+  createValue(
+    @Body() data: CreatePropertyValueDto,
+    @Req() { user }: { user: IUser },
+  ) {
+    return this.service.createValue({ ...data, user });
   }
 }

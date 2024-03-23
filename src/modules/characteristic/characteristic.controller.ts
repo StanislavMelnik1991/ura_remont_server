@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Req,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
@@ -26,12 +27,11 @@ import {
 import { adminRouter } from 'shared/router';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 import { characteristicCreateScheme } from 'shared/schemas';
+import { IUser } from 'shared/types';
 
 const { create, getAllForType } = adminRouter.characteristic;
 
 @ApiTags('Admins commands', 'Characteristics')
-@Roles(RolesEnum.ADMIN)
-@UseGuards(RolesGuard)
 @ApiBearerAuth()
 @Controller()
 export class CharacteristicController {
@@ -54,9 +54,14 @@ export class CharacteristicController {
     description: 'Create type characteristic',
   })
   @ApiResponse({ status: 200 })
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
   @Post(create.route)
   @UsePipes(new ZodValidationPipe(characteristicCreateScheme))
-  createCharacteristic(@Body() data: CreateCharacteristicDto) {
-    return this.service.create(data);
+  createCharacteristic(
+    @Body() data: CreateCharacteristicDto,
+    @Req() { user }: { user: IUser },
+  ) {
+    return this.service.create({ ...data, user });
   }
 }

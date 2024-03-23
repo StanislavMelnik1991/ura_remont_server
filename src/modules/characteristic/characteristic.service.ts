@@ -1,14 +1,19 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Characteristic, Dictionary, ProductType } from 'database';
 import { DictionaryService } from 'modules/dictionary/dictionary.service';
+import { IUser } from 'shared/types';
 import { Repository, DataSource } from 'typeorm';
 
 @Injectable()
 export class CharacteristicService {
   constructor(
     private dataSource: DataSource,
-
     private dictionaryService: DictionaryService,
 
     @InjectRepository(Characteristic)
@@ -21,6 +26,7 @@ export class CharacteristicService {
     typeId,
     display,
     isFilter,
+    user,
   }: CreationPropertyProps) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
@@ -30,7 +36,8 @@ export class CharacteristicService {
       const { manager } = queryRunner;
       const notFound = !(await manager.findOneBy(ProductType, { id: typeId }));
       if (notFound) {
-        throw new HttpException({ type: 'not found' }, HttpStatus.NOT_FOUND);
+        Logger.warn('ProductType not found', 'Characteristic');
+        throw new NotFoundException();
       }
       const newName = manager.create(Dictionary, {
         ru: name,
@@ -52,10 +59,15 @@ export class CharacteristicService {
       await manager.save(Characteristic, entity);
 
       await queryRunner.commitTransaction();
+      Logger.log(
+        `user with id: ${user.id} create new Characteristic with id: ${entity.id}`,
+        'Characteristic',
+      );
       return { id: entity.id };
     } catch (err) {
       await queryRunner.rollbackTransaction();
-      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
+      Logger.error('InternalServerErrorException', 'Characteristic');
+      throw new InternalServerErrorException();
     } finally {
       await queryRunner.release();
     }
@@ -69,10 +81,8 @@ export class CharacteristicService {
     try {
       return this.characteristicRepository.findOneByOrFail({ id });
     } catch (error) {
-      throw new HttpException(
-        { characteristic: 'not found' },
-        HttpStatus.NOT_FOUND,
-      );
+      Logger.warn('characteristic not found', 'Characteristic');
+      throw new NotFoundException({ characteristic: 'not found' });
     }
   }
 
@@ -87,4 +97,5 @@ type CreationPropertyProps = {
   suffix: string;
   isFilter?: boolean;
   display?: boolean;
+  user: IUser;
 };

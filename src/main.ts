@@ -38,7 +38,7 @@ async function start() {
   SwaggerModule.setup('api/docs', app, document);
 
   await app.listen(PORT, () =>
-    Logger.warn(`Server started on port = ${PORT}`, 'NestApplication'),
+    Logger.warn(`Server started on port = ${PORT}`, 'NestServer'),
   );
 }
 start();

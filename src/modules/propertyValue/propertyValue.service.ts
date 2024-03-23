@@ -1,4 +1,8 @@
-import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { PropertyValue } from 'database';
 import { Repository } from 'typeorm';
@@ -10,7 +14,7 @@ export class PropertyValueService {
     private valueRepository: Repository<PropertyValue>,
   ) {}
 
-  async setValue({ value, ...props }: CreationValueProps) {
+  async create({ value, ...props }: CreationValueProps) {
     let entity = await this.valueRepository.findOneBy(props);
     if (!entity) {
       entity = this.valueRepository.create({ ...props, value });
@@ -21,7 +25,8 @@ export class PropertyValueService {
     try {
       await this.valueRepository.save(entity);
     } catch (error) {
-      throw new HttpException(error.detail, HttpStatus.INTERNAL_SERVER_ERROR);
+      Logger.error(`InternalServerErrorException`, 'PropertyValue');
+      throw new InternalServerErrorException();
     }
     return { id: entity.id };
   }

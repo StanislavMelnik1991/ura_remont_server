@@ -1,4 +1,11 @@
-import { Body, Controller, Post, UseGuards, UsePipes } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Post,
+  Req,
+  UseGuards,
+  UsePipes,
+} from '@nestjs/common';
 import {
   ApiBearerAuth,
   ApiOperation,
@@ -13,12 +20,11 @@ import { CreateCharacteristicValueDto } from 'types/swagger';
 import { adminRouter } from 'shared/router';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 import { characteristicValueCreateScheme } from 'shared/schemas';
+import { IUser } from 'shared/types';
 
 const { create } = adminRouter.characteristicValues;
 
 @ApiTags('Admins commands', 'Characteristics', 'Prototype')
-@Roles(RolesEnum.ADMIN)
-@UseGuards(RolesGuard)
 @ApiBearerAuth()
 @Controller()
 export class CharacteristicValueController {
@@ -30,8 +36,13 @@ export class CharacteristicValueController {
   })
   @ApiResponse({ status: 200 })
   @Post(create.route)
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
   @UsePipes(new ZodValidationPipe(characteristicValueCreateScheme))
-  createValue(@Body() data: CreateCharacteristicValueDto) {
-    return this.service.setValue(data);
+  createValue(
+    @Body() data: CreateCharacteristicValueDto,
+    @Req() { user }: { user: IUser },
+  ) {
+    return this.service.create({ ...data, user });
   }
 }

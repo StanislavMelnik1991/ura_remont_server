@@ -1,6 +1,7 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dictionary } from 'database';
+import { IUser } from 'shared/types';
 import { Repository } from 'typeorm';
 
 @Injectable()
@@ -20,8 +21,12 @@ export class DictionaryService {
     return this.dictionaryRepository.findOneBy({ id });
   }
 
-  async update({ id, ...props }: UpdatingProps) {
+  async update({ user, id, ...props }: UpdatingProps) {
     await this.dictionaryRepository.update({ id }, props);
+    Logger.log(
+      `user with id: ${user.id} create new dictionary with id: ${id}`,
+      'Dictionary',
+    );
     return { id };
   }
 }
@@ -34,4 +39,4 @@ type CreationProps = {
   pl?: string;
 };
 
-type UpdatingProps = Partial<CreationProps> & { id: number };
+type UpdatingProps = Partial<CreationProps> & { id: number; user: IUser };

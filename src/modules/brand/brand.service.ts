@@ -1,13 +1,12 @@
 import {
   HttpException,
-  HttpStatus,
   Injectable,
+  InternalServerErrorException,
   Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brand, Dictionary, ImageList } from 'database';
-import { DictionaryService } from 'modules/dictionary/dictionary.service';
 import { ImageService } from 'modules/image/image.service';
 import { AcceptedLanguagesEnum } from 'shared/constants';
 import { IUser } from 'shared/types';
@@ -18,7 +17,6 @@ import { CreateBrandSchemeType, GetBrandsSchemeType } from 'types/swagger';
 export class BrandService {
   constructor(
     private dataSource: DataSource,
-    private dictionaryService: DictionaryService,
     private imageService: ImageService,
 
     @InjectRepository(Brand)
@@ -60,8 +58,9 @@ export class BrandService {
       );
       return newBrand;
     } catch (err) {
+      Logger.error('InternalServerErrorException', 'Brand');
       await queryRunner.rollbackTransaction();
-      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new InternalServerErrorException();
     } finally {
       await queryRunner.release();
     }
@@ -75,7 +74,8 @@ export class BrandService {
     try {
       const brand = await queryRunner.manager.findOneBy(Brand, { id });
       if (!brand) {
-        throw new HttpException({ brand: 'not found' }, HttpStatus.NOT_FOUND);
+        Logger.warn('brand not found', 'Brand');
+        throw new NotFoundException({ brand: 'not found' });
       }
       const { name: nameId, description: descriptionId } = brand;
       const jobs: Array<Promise<UpdateResult>> = [];
@@ -106,7 +106,8 @@ export class BrandService {
       if (err instanceof HttpException) {
         throw new HttpException(err.getResponse(), err.getStatus());
       }
-      throw new HttpException(err.detail, HttpStatus.INTERNAL_SERVER_ERROR);
+      Logger.error('InternalServerErrorException', 'Brand');
+      throw new InternalServerErrorException();
     } finally {
       await queryRunner.release();
     }
@@ -123,6 +124,7 @@ export class BrandService {
         .getOneOrFail();
       return entity;
     } catch (error) {
+      Logger.warn('brand not found', 'Brand');
       throw new NotFoundException({ brand: 'not found' });
     }
   }
@@ -131,6 +133,7 @@ export class BrandService {
     try {
       return await this.brandRepository.findOneByOrFail({ id });
     } catch (error) {
+      Logger.warn('brand not found', 'Brand');
       throw new NotFoundException({ brand: 'not found' });
     }
   }
@@ -154,17 +157,15 @@ export class BrandService {
   async uploadImage({ data, id, user }: UploadImageProps & { user: IUser }) {
     const type = await this.brandRepository.findOneBy({ id });
     if (!type) {
+      Logger.warn('type not found', 'Brand');
       throw new NotFoundException(`brand with id: ${id}`);
     }
     const basePath = `brand/${id}`;
-    Logger.log(
-      `user id: ${user.id} upload new image for brand id: ${id}`,
-      'Brand',
-    );
     return this.imageService.addImageToList({
       basePath,
       data,
       listId: type.listId,
+      userId: user.id,
     });
   }
 }

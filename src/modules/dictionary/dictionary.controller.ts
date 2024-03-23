@@ -5,6 +5,7 @@ import {
   Param,
   ParseIntPipe,
   Patch,
+  Req,
   UseGuards,
   UsePipes,
 } from '@nestjs/common';
@@ -22,6 +23,7 @@ import { DictionarySwaggerScheme, UpdateDictionaryDto } from 'types/swagger';
 import { adminRouter } from 'shared/router';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 import { dictionaryUpdateScheme } from 'shared/schemas';
+import { IUser } from 'shared/types';
 
 const { getOne, update } = adminRouter.dictionary;
 
@@ -53,8 +55,9 @@ export class DictionaryController {
   update(
     @Param(update.mask, ParseIntPipe) id: number,
     @Body() data: UpdateDictionaryDto,
+    @Req() { user }: { user: IUser },
   ) {
-    return this.service.update({ ...data, id });
+    return this.service.update({ ...data, id, user });
   }
 
   @ApiOperation({
