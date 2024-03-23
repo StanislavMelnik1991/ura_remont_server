@@ -1,24 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { apiRouter } from 'shared/routes';
+import { authTelegramScheme } from 'shared/schemas';
 import { z } from 'zod';
 
-const {
-  auth: {
-    scheme,
-    telegram: { scheme: tgScheme },
-  },
-} = apiRouter;
-
-type AuthSchemeType = z.infer<typeof scheme>;
-type TgAuthSchemeType = z.infer<typeof tgScheme>;
-
-export class AuthDto implements AuthSchemeType {
-  @ApiProperty({ example: 'Admin' })
-  login: string;
-
-  @ApiProperty({ example: '123qweQWE' })
-  password: string;
-}
+type TgAuthSchemeType = z.infer<typeof authTelegramScheme>;
 
 export class TelegramAuthDto implements TgAuthSchemeType {
   @ApiProperty({ example: String(Date.now()) })

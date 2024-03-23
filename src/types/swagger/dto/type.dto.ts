@@ -1,14 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { adminRouter } from 'shared/routes';
+import { typeCreateScheme, typeGetAllScheme } from 'shared/schemas';
 import { z } from 'zod';
 
-const {
-  create: { scheme: createScheme },
-  getAll: { scheme: getAllScheme },
-} = adminRouter.type;
-
-export type CreateTypeSchemeType = z.infer<typeof createScheme>;
-export type GetAllTypesSchemeType = z.infer<typeof getAllScheme>;
+export type CreateTypeSchemeType = z.infer<typeof typeCreateScheme>;
+export type GetAllTypesSchemeType = z.infer<typeof typeGetAllScheme>;
 
 export class CreateTypeDto implements CreateTypeSchemeType {
   @ApiProperty({

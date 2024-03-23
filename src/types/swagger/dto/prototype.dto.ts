@@ -1,10 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { adminRouter } from 'shared/routes';
+import { prototypeCreateScheme } from 'shared/schemas';
 import { z } from 'zod';
 
-const { scheme } = adminRouter.prototype.create;
-
-type CreatePrototypeSchemeType = z.infer<typeof scheme>;
+type CreatePrototypeSchemeType = z.infer<typeof prototypeCreateScheme>;
 
 export class CreatePrototypeDto implements CreatePrototypeSchemeType {
   @ApiProperty({

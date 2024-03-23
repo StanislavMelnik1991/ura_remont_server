@@ -1,16 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { adminRouter } from 'shared/routes';
+import { brandCreateScheme, brandGetAllScheme } from 'shared/schemas';
 import { z } from 'zod';
 
-const {
-  brand: {
-    create: { scheme: createScheme },
-    getAll: { scheme: getAllScheme },
-  },
-} = adminRouter;
-
-export type CreateBrandSchemeType = z.infer<typeof createScheme>;
-export type GetBrandsSchemeType = z.infer<typeof getAllScheme>;
+export type CreateBrandSchemeType = z.infer<typeof brandCreateScheme>;
+export type GetBrandsSchemeType = z.infer<typeof brandGetAllScheme>;
 
 export class CreateBrandDto implements CreateBrandSchemeType {
   @ApiProperty({

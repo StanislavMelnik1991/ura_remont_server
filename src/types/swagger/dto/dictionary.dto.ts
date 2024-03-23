@@ -1,10 +1,8 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { adminRouter } from 'shared/routes';
+import { dictionaryUpdateScheme } from 'shared/schemas';
 import { z } from 'zod';
 
-const { scheme } = adminRouter.dictionary.current.update;
-
-type BaseType = z.infer<typeof scheme>;
+type BaseType = z.infer<typeof dictionaryUpdateScheme>;
 
 export class UpdateDictionaryDto implements BaseType {
   @ApiProperty({

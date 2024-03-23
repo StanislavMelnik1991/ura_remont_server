@@ -7,7 +7,7 @@ import {
 } from '@nestjs/common';
 import { createHash, createHmac } from 'crypto';
 import { Observable } from 'rxjs';
-import { apiRouter } from 'shared/routes';
+import { authTelegramScheme } from 'shared/schemas';
 import { z } from 'zod';
 
 @Injectable()
@@ -17,9 +17,7 @@ export class AuthTelegramGuard implements CanActivate {
   canActivate(
     context: ExecutionContext,
   ): boolean | Promise<boolean> | Observable<boolean> {
-    const { scheme } = apiRouter.auth.telegram;
-
-    type TgAuthSchemeType = z.infer<typeof scheme>;
+    type TgAuthSchemeType = z.infer<typeof authTelegramScheme>;
 
     const req = context.switchToHttp().getRequest();
     const {

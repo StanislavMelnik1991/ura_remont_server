@@ -1,16 +1,9 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { adminRouter } from 'shared/routes';
+import { productCreateScheme, productUpdateScheme } from 'shared/schemas';
 import { z } from 'zod';
 
-const {
-  create: { scheme: createScheme },
-  current: {
-    update: { scheme: updateScheme },
-  },
-} = adminRouter.product;
-
-type CreateType = z.infer<typeof createScheme>;
-type UpdateType = z.infer<typeof updateScheme>;
+type CreateType = z.infer<typeof productCreateScheme>;
+type UpdateType = z.infer<typeof productUpdateScheme>;
 
 export class CreateProductDto implements CreateType {
   @ApiProperty({
