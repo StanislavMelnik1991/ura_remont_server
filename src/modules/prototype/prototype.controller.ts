@@ -26,23 +26,14 @@ import {
   PrototypeSwaggerScheme,
   CreatePropertyDto,
 } from 'types/swagger';
-import { adminRouter } from 'shared/routes';
+import { adminRouter } from 'shared/router';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ONE_MB_IN_BYTES } from 'shared/constants/file.constants';
+import { ONE_MB_IN_BYTES } from 'shared/constants';
+import { propertyCreateScheme, prototypeCreateScheme } from 'shared/schemas';
 
-const {
-  create: { baseRoute: createRoute, scheme: createScheme },
-  current: {
-    getCurrent: { baseRoute: currentRoute },
-    idMask: currentMask,
-    upload: { baseRoute: uploadRoute },
-    property: {
-      create: { baseRoute: createPropertyRoute, scheme: createPropertyScheme },
-      getAll: { baseRoute: getPropertyRoute },
-    },
-  },
-} = adminRouter.prototype;
+const { create, getOne, uploadImage } = adminRouter.prototype;
+const { createProperty, getAll } = adminRouter.property;
 
 @ApiTags('Admins commands', 'Prototype')
 @Roles(RolesEnum.ADMIN)
@@ -57,8 +48,8 @@ export class PrototypeController {
     description: 'Creation new type of production',
   })
   @ApiResponse({ status: 200 })
-  @Post(createRoute)
-  @UsePipes(new ZodValidationPipe(createScheme))
+  @Post(create.route)
+  @UsePipes(new ZodValidationPipe(prototypeCreateScheme))
   create(@Body() data: CreatePrototypeDto) {
     return this.service.create(data);
   }
@@ -68,9 +59,9 @@ export class PrototypeController {
     description: 'Get prototype',
   })
   @ApiResponse({ status: 200, type: PrototypeSwaggerScheme })
-  @Get(currentRoute)
+  @Get(getOne.route)
   getPrototype(
-    @Param(currentMask, ParseIntPipe) id: number,
+    @Param(getOne.mask, ParseIntPipe) id: number,
   ): Promise<PrototypeSwaggerScheme | null> {
     return this.service.getPrototype(id);
   }
@@ -81,9 +72,9 @@ export class PrototypeController {
   })
   @ApiResponse({ status: 200, type: [PrototypeSwaggerScheme] })
   @ApiTags('Properties')
-  @Get(getPropertyRoute)
+  @Get(getAll.route)
   getProperties(
-    @Param(currentMask, ParseIntPipe) id: number,
+    @Param(getAll.mask, ParseIntPipe) id: number,
   ): Promise<PrototypeProperty[]> {
     return this.service.getProperties(id);
   }
@@ -94,13 +85,10 @@ export class PrototypeController {
   })
   @ApiResponse({ status: 200 })
   @ApiTags('Properties')
-  @Post(createPropertyRoute)
-  @UsePipes(new ZodValidationPipe(createPropertyScheme))
-  createProperty(
-    @Body() data: CreatePropertyDto,
-    @Param(currentMask, ParseIntPipe) id: number,
-  ) {
-    return this.service.createProperty({ ...data, prototypeId: id });
+  @Post(createProperty.route)
+  @UsePipes(new ZodValidationPipe(propertyCreateScheme))
+  createProperty(@Body() data: CreatePropertyDto) {
+    return this.service.createProperty(data);
   }
 
   @ApiOperation({
@@ -108,7 +96,7 @@ export class PrototypeController {
     description: 'Upload prototype image',
   })
   @ApiResponse({ status: 200 })
-  @Post(uploadRoute)
+  @Post(uploadImage.route)
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { files: 1, fileSize: 4 * ONE_MB_IN_BYTES },
@@ -116,7 +104,7 @@ export class PrototypeController {
   )
   uploadImage(
     @UploadedFile() file: Express.Multer.File,
-    @Param(currentMask, ParseIntPipe) id: number,
+    @Param(uploadImage.mask, ParseIntPipe) id: number,
   ) {
     return this.service.uploadImage({ data: file.buffer, id });
   }

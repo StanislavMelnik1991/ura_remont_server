@@ -21,25 +21,18 @@ import { RolesGuard } from 'guards';
 import {
   CreateProductDto,
   UpdateProductDto,
-  CreateValueDto,
+  CreatePropertyValueDto,
 } from 'types/swagger';
-import { adminRouter } from 'shared/routes';
+import { adminRouter } from 'shared/router';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
+import {
+  productCreateScheme,
+  productUpdateScheme,
+  propertyValueCreateScheme,
+} from 'shared/schemas';
 
-const {
-  create: { baseRoute: createRoute, scheme: createScheme },
-  current: {
-    idMask: productIdMask,
-    update: { baseRoute: updateRoute, scheme: updateScheme },
-    value: {
-      create: {
-        baseRoute: createValueRoute,
-        idMask: propertyIdMask,
-        scheme: createValueScheme,
-      },
-    },
-  },
-} = adminRouter.product;
+const { create, update } = adminRouter.product;
+const { create: createValue } = adminRouter.propertyValues;
 
 @ApiTags('Admins commands', 'Product')
 @Roles(RolesEnum.ADMIN)
@@ -54,8 +47,8 @@ export class ProductController {
     description: 'Creation new type of production',
   })
   @ApiResponse({ status: 200 })
-  @Post(createRoute)
-  @UsePipes(new ZodValidationPipe(createScheme))
+  @Post(create.route)
+  @UsePipes(new ZodValidationPipe(productCreateScheme))
   create(@Body() data: CreateProductDto) {
     return this.service.create(data);
   }
@@ -65,11 +58,11 @@ export class ProductController {
     description: 'Update production values',
   })
   @ApiResponse({ status: 200 })
-  @Patch(updateRoute)
-  @UsePipes(new ZodValidationPipe(updateScheme))
+  @Patch(update.route)
+  @UsePipes(new ZodValidationPipe(productUpdateScheme))
   update(
     @Body() data: UpdateProductDto,
-    @Param(productIdMask, ParseIntPipe) productId: number,
+    @Param(update.mask, ParseIntPipe) productId: number,
   ) {
     return this.service.update({ ...data, id: productId });
   }
@@ -80,13 +73,9 @@ export class ProductController {
   })
   @ApiResponse({ status: 200 })
   @ApiTags('Properties')
-  @Post(createValueRoute)
-  @UsePipes(new ZodValidationPipe(createValueScheme))
-  createValue(
-    @Body() data: CreateValueDto,
-    @Param(productIdMask, ParseIntPipe) productId: number,
-    @Param(propertyIdMask, ParseIntPipe) propertyId: number,
-  ) {
-    return this.service.createValue({ ...data, productId, propertyId });
+  @Post(createValue.route)
+  @UsePipes(new ZodValidationPipe(propertyValueCreateScheme))
+  createValue(@Body() data: CreatePropertyValueDto) {
+    return this.service.createValue(data);
   }
 }

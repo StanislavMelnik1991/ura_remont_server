@@ -1,10 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { propertyCreateScheme } from 'shared/schemas';
+import { characteristicCreateScheme } from 'shared/schemas';
 import { z } from 'zod';
 
-type CreatePropertySchemeType = z.infer<typeof propertyCreateScheme>;
+type CreateCharacteristicSchemeType = z.infer<
+  typeof characteristicCreateScheme
+>;
 
-export class CreatePropertyDto implements CreatePropertySchemeType {
+export class CreateCharacteristicDto implements CreateCharacteristicSchemeType {
   @ApiProperty({
     example: 'Consumption',
     description: 'Property name (ru)',
@@ -27,5 +29,5 @@ export class CreatePropertyDto implements CreatePropertySchemeType {
   display: boolean;
 
   @ApiProperty()
-  prototypeId: number;
+  typeId: number;
 }

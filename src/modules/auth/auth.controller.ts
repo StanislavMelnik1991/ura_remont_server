@@ -12,12 +12,11 @@ import { ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 import { TelegramAuthDto, TokenScheme } from 'types/swagger';
-import { apiRouter } from 'shared/routes';
+import { apiRouter } from 'shared/router';
 import { AuthTelegramGuard } from 'guards/authTelegram.guard';
+import { authTelegramScheme } from 'shared/schemas';
 
-const {
-  telegram: { baseRoute, scheme },
-} = apiRouter.auth;
+const { tgLogin, deleteTelegramUser, deleteUser } = apiRouter;
 
 @ApiTags('Authorization')
 @Controller()
@@ -39,8 +38,8 @@ export class AuthController {
   })
   @ApiResponse({ status: 200, type: TokenScheme })
   @UseGuards(AuthTelegramGuard)
-  @Post(baseRoute)
-  @UsePipes(new ZodValidationPipe(scheme))
+  @Post(tgLogin.route)
+  @UsePipes(new ZodValidationPipe(authTelegramScheme))
   login(@Body() data: TelegramAuthDto) {
     return this.authService.telegramAuth(data);
   }
@@ -49,8 +48,8 @@ export class AuthController {
     summary: 'Delete user',
   })
   @ApiResponse({ status: 200, type: TokenScheme })
-  @Delete('api/auth/:id')
-  delete(@Param('id', ParseIntPipe) id: number) {
+  @Delete(deleteUser.route)
+  delete(@Param(deleteUser.mask, ParseIntPipe) id: number) {
     return this.authService.deleteUser(id);
   }
 
@@ -58,8 +57,8 @@ export class AuthController {
     summary: 'Delete user telegram',
   })
   @ApiResponse({ status: 200, type: TokenScheme })
-  @Delete('api/auth/telegram/:id')
-  deleteTg(@Param('id', ParseIntPipe) id: number) {
+  @Delete(deleteTelegramUser.route)
+  deleteTg(@Param(deleteTelegramUser.mask, ParseIntPipe) id: number) {
     return this.authService.deleteUserTelegram(id);
   }
 }

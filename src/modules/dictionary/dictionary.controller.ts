@@ -19,14 +19,11 @@ import { Roles } from 'decorators/roles.decorator';
 import { RolesEnum } from 'shared/constants';
 import { RolesGuard } from 'guards';
 import { DictionarySwaggerScheme, UpdateDictionaryDto } from 'types/swagger';
-import { adminRouter } from 'shared/routes';
+import { adminRouter } from 'shared/routeR';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
+import { dictionaryUpdateScheme } from 'shared/schemas';
 
-const {
-  idMask,
-  getCurrent: { baseRoute: getRoute },
-  update: { baseRoute: updateRoute, scheme },
-} = adminRouter.dictionary.current;
+const { getOne, update } = adminRouter.dictionary;
 
 @ApiTags('Translation')
 @Controller()
@@ -51,10 +48,10 @@ export class DictionaryController {
   @Roles(RolesEnum.ADMIN)
   @UseGuards(RolesGuard)
   @ApiBearerAuth()
-  @Patch(updateRoute)
-  @UsePipes(new ZodValidationPipe(scheme))
+  @Patch(update.route)
+  @UsePipes(new ZodValidationPipe(dictionaryUpdateScheme))
   update(
-    @Param(idMask, ParseIntPipe) id: number,
+    @Param(update.mask, ParseIntPipe) id: number,
     @Body() data: UpdateDictionaryDto,
   ) {
     return this.service.update({ ...data, id });
@@ -65,9 +62,9 @@ export class DictionaryController {
     description: 'Find dictionary values',
   })
   @ApiResponse({ status: 200, type: DictionarySwaggerScheme })
-  @Get(getRoute)
+  @Get(getOne.route)
   find(
-    @Param(idMask, ParseIntPipe) id: number,
+    @Param(getOne.mask, ParseIntPipe) id: number,
   ): Promise<DictionarySwaggerScheme | null> {
     return this.service.findById(id);
   }

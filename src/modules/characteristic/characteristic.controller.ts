@@ -19,18 +19,15 @@ import { Characteristic } from 'database';
 import { Roles } from 'decorators/roles.decorator';
 import { RolesGuard } from 'guards';
 import { RolesEnum } from 'shared/constants';
-import { CharacteristicSwaggerScheme, CreatePropertyDto } from 'types/swagger';
-import { adminRouter } from 'shared/routes';
+import {
+  CharacteristicSwaggerScheme,
+  CreateCharacteristicDto,
+} from 'types/swagger';
+import { adminRouter } from 'shared/router';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
+import { characteristicCreateScheme } from 'shared/schemas';
 
-const {
-  create: {
-    typeIdMask: createIdMask,
-    baseRoute: createRoute,
-    scheme: createScheme,
-  },
-  getAll: { typeIdMask: getIdMask, baseRoute: getAllRoute },
-} = adminRouter.type.current.characteristic;
+const { create, getAllForType } = adminRouter.characteristic;
 
 @ApiTags('Admins commands', 'Characteristics')
 @Roles(RolesEnum.ADMIN)
@@ -45,9 +42,9 @@ export class CharacteristicController {
     description: 'Get characteristics for type',
   })
   @ApiResponse({ status: 200, type: [CharacteristicSwaggerScheme] })
-  @Get(getAllRoute)
+  @Get(getAllForType.route)
   getCharacteristics(
-    @Param(getIdMask, ParseIntPipe) id: number,
+    @Param(getAllForType.mask, ParseIntPipe) id: number,
   ): Promise<Characteristic[]> {
     return this.service.findById(id);
   }
@@ -57,12 +54,9 @@ export class CharacteristicController {
     description: 'Create type characteristic',
   })
   @ApiResponse({ status: 200 })
-  @Post(createRoute)
-  @UsePipes(new ZodValidationPipe(createScheme))
-  createCharacteristic(
-    @Body() data: CreatePropertyDto,
-    @Param(createIdMask, ParseIntPipe) typeId: number,
-  ) {
-    return this.service.create({ ...data, typeId });
+  @Post(create.route)
+  @UsePipes(new ZodValidationPipe(characteristicCreateScheme))
+  createCharacteristic(@Body() data: CreateCharacteristicDto) {
+    return this.service.create(data);
   }
 }

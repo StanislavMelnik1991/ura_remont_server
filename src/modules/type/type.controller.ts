@@ -26,20 +26,13 @@ import {
   CreateTypeDto,
   GetAllTypeSDto,
 } from 'types/swagger';
-import { adminRouter } from 'shared/routes';
+import { adminRouter } from 'shared/router';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ONE_MB_IN_BYTES } from 'shared/constants/file.constants';
+import { ONE_MB_IN_BYTES } from 'shared/constants';
+import { typeCreateScheme, typeGetAllScheme } from 'shared/schemas';
 
-const {
-  create,
-  getAll: { baseRoute: getAllRoute, scheme: getAllScheme },
-  current: {
-    getCurrent: { baseRoute: getCurrentRoute },
-    upload: { baseRoute: uploadRoute },
-    idMask,
-  },
-} = adminRouter.type;
+const { create, getAll, getOne, uploadImage } = adminRouter.type;
 
 @ApiTags('Admins commands', 'Type')
 @Roles(RolesEnum.ADMIN)
@@ -54,8 +47,8 @@ export class TypeController {
     description: 'Creation new type',
   })
   @ApiResponse({ status: 200, type: TypeSwaggerScheme })
-  @Post(create.baseRoute)
-  @UsePipes(new ZodValidationPipe(create.scheme))
+  @Post(create.route)
+  @UsePipes(new ZodValidationPipe(typeCreateScheme))
   create(@Body() data: CreateTypeDto): Promise<TypeSwaggerScheme> {
     return this.service.create(data);
   }
@@ -65,8 +58,8 @@ export class TypeController {
     description: 'Get all types with dictionaries',
   })
   @ApiResponse({ status: 200, type: [TypeSwaggerScheme] })
-  @Get(getAllRoute)
-  @UsePipes(new ZodValidationPipe(getAllScheme))
+  @Get(getAll.route)
+  @UsePipes(new ZodValidationPipe(typeGetAllScheme))
   getAll(@Query() data: GetAllTypeSDto) {
     return this.service.getAllTypes(data);
   }
@@ -76,8 +69,10 @@ export class TypeController {
     description: 'Get type',
   })
   @ApiResponse({ status: 200, type: TypeSwaggerScheme })
-  @Get(getCurrentRoute)
-  getType(@Param(idMask, ParseIntPipe) id: number): Promise<TypeSwaggerScheme> {
+  @Get(getOne.route)
+  getType(
+    @Param(getOne.mask, ParseIntPipe) id: number,
+  ): Promise<TypeSwaggerScheme> {
     return this.service.getType(id);
   }
 
@@ -86,7 +81,7 @@ export class TypeController {
     description: 'Upload type image',
   })
   @ApiResponse({ status: 200 })
-  @Post(uploadRoute)
+  @Post(uploadImage.route)
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { files: 1, fileSize: 4 * ONE_MB_IN_BYTES },
@@ -94,7 +89,7 @@ export class TypeController {
   )
   uploadImage(
     @UploadedFile() file: Express.Multer.File,
-    @Param(idMask, ParseIntPipe) id: number,
+    @Param(uploadImage.mask, ParseIntPipe) id: number,
   ) {
     return this.service.uploadImage({ data: file.buffer, id });
   }

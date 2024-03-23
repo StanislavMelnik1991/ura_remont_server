@@ -7,3 +7,4 @@ export * from './property.dto';
 export * from './prototype.dto';
 export * from './type.dto';
 export * from './value.dto';
+export * from './characteristic.dto';

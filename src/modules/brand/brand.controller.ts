@@ -26,20 +26,13 @@ import {
   CreateBrandDto,
   GetAllBrandsDto,
 } from 'types/swagger';
-import { adminRouter } from 'shared/routes';
+import { adminRouter } from 'shared/router';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ONE_MB_IN_BYTES } from 'shared/constants/file.constants';
+import { ONE_MB_IN_BYTES } from 'shared/constants';
+import { brandCreateScheme, brandGetAllScheme } from 'shared/schemas';
 
-const {
-  create: { baseRoute: creationRoute, scheme },
-  getAll: { baseRoute: getAllRoute, scheme: getAllScheme },
-  current: {
-    getCurrent: { baseRoute: currentRoute },
-    upload: { baseRoute: uploadRoute },
-    idMask,
-  },
-} = adminRouter.brand;
+const { create, getAll, getOne, uploadImage } = adminRouter.brand;
 
 @ApiTags('Admins commands', 'Brand')
 @Roles(RolesEnum.ADMIN)
@@ -54,8 +47,8 @@ export class BrandController {
     description: 'Creation new brand',
   })
   @ApiResponse({ status: 200, type: BrandSwaggerSchema })
-  @Post(creationRoute)
-  @UsePipes(new ZodValidationPipe(scheme))
+  @Post(create.route)
+  @UsePipes(new ZodValidationPipe(brandCreateScheme))
   create(@Body() data: CreateBrandDto): Promise<BrandSwaggerSchema> {
     return this.service.create(data);
   }
@@ -65,8 +58,8 @@ export class BrandController {
     description: 'Get all brands with dictionaries',
   })
   @ApiResponse({ status: 200 })
-  @Get(getAllRoute)
-  @UsePipes(new ZodValidationPipe(getAllScheme))
+  @Get(getAll.route)
+  @UsePipes(new ZodValidationPipe(brandGetAllScheme))
   getAll(@Query() data: GetAllBrandsDto) {
     return this.service.getAllBrands(data);
   }
@@ -76,9 +69,9 @@ export class BrandController {
     description: 'Get brand',
   })
   @ApiResponse({ status: 200, type: BrandSwaggerSchema })
-  @Get(currentRoute)
+  @Get(getOne.route)
   getBrand(
-    @Param(idMask, ParseIntPipe) id: number,
+    @Param(getOne.mask, ParseIntPipe) id: number,
   ): Promise<BrandSwaggerSchema> {
     return this.service.getBrand(id);
   }
@@ -88,7 +81,7 @@ export class BrandController {
     description: 'Upload type image',
   })
   @ApiResponse({ status: 200 })
-  @Post(uploadRoute)
+  @Post(uploadImage.route)
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { files: 1, fileSize: 4 * ONE_MB_IN_BYTES },
@@ -96,7 +89,7 @@ export class BrandController {
   )
   uploadImage(
     @UploadedFile() file: Express.Multer.File,
-    @Param(idMask, ParseIntPipe) id: number,
+    @Param(uploadImage.mask, ParseIntPipe) id: number,
   ) {
     return this.service.uploadImage({ data: file.buffer, id });
   }
