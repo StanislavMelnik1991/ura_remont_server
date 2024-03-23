@@ -22,17 +22,6 @@ const { tgLogin, deleteTelegramUser, deleteUser } = apiRouter;
 @Controller()
 export class AuthController {
   constructor(private authService: AuthService) {}
-
-  /* @ApiOperation({
-    summary: 'Registration user',
-  })
-  @ApiResponse({ status: 200, type: TokenScheme })
-  @Post(signup.baseRoute)
-  @UsePipes(new ZodValidationPipe(scheme))
-  signup(@Body() data: AuthDto) {
-    return this.authService.create(data);
-  } */
-
   @ApiOperation({
     summary: 'Authorization user with tg',
   })

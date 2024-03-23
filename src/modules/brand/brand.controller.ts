@@ -6,6 +6,7 @@ import {
   ParseIntPipe,
   Post,
   Query,
+  Req,
   UploadedFile,
   UseGuards,
   UseInterceptors,
@@ -31,12 +32,11 @@ import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ONE_MB_IN_BYTES } from 'shared/constants';
 import { brandCreateScheme, brandGetAllScheme } from 'shared/schemas';
+import { IUser } from 'shared/types';
 
 const { create, getAll, getOne, uploadImage } = adminRouter.brand;
 
 @ApiTags('Admins commands', 'Brand')
-@Roles(RolesEnum.ADMIN)
-@UseGuards(RolesGuard)
 @ApiBearerAuth()
 @Controller()
 export class BrandController {
@@ -48,9 +48,14 @@ export class BrandController {
   })
   @ApiResponse({ status: 200, type: BrandSwaggerSchema })
   @Post(create.route)
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
   @UsePipes(new ZodValidationPipe(brandCreateScheme))
-  create(@Body() data: CreateBrandDto): Promise<BrandSwaggerSchema> {
-    return this.service.create(data);
+  create(
+    @Body() data: CreateBrandDto,
+    @Req() { user }: { user: IUser },
+  ): Promise<BrandSwaggerSchema> {
+    return this.service.create({ ...data, user });
   }
 
   @ApiOperation({
@@ -82,6 +87,8 @@ export class BrandController {
   })
   @ApiResponse({ status: 200 })
   @Post(uploadImage.route)
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
   @UseInterceptors(
     FileInterceptor('file', {
       limits: { files: 1, fileSize: 4 * ONE_MB_IN_BYTES },
@@ -90,7 +97,8 @@ export class BrandController {
   uploadImage(
     @UploadedFile() file: Express.Multer.File,
     @Param(uploadImage.mask, ParseIntPipe) id: number,
+    @Req() { user }: { user: IUser },
   ) {
-    return this.service.uploadImage({ data: file.buffer, id });
+    return this.service.uploadImage({ data: file.buffer, id, user });
   }
 }

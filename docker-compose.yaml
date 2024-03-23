@@ -7,6 +7,8 @@ services:
       context: .
     env_file:
       - .env
+    environment:
+      - POSTGRES_HOST=postgres
     volumes:
       - .:/app
       - /app/node_modules

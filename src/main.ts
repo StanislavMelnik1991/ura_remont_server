@@ -5,6 +5,7 @@ import { ConfigService } from '@nestjs/config';
 
 import * as admin from 'firebase-admin';
 import { ServiceAccount } from 'firebase-admin';
+import { Logger } from '@nestjs/common';
 
 async function start() {
   const app = await NestFactory.create(AppModule, {
@@ -36,6 +37,8 @@ async function start() {
   const document = SwaggerModule.createDocument(app, swaggerConfig);
   SwaggerModule.setup('api/docs', app, document);
 
-  await app.listen(PORT, () => console.log(`Server started on port = ${PORT}`));
+  await app.listen(PORT, () =>
+    Logger.warn(`Server started on port = ${PORT}`, 'NestApplication'),
+  );
 }
 start();

@@ -3,6 +3,7 @@ import {
   HttpStatus,
   Injectable,
   InternalServerErrorException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
@@ -30,8 +31,10 @@ export class AuthService {
       if (!user) {
         throw new InternalServerErrorException();
       }
+      Logger.log(`${props.username} in logging`, 'auth');
       return this.generateToken(user);
     } else {
+      Logger.log(`New user ${props.username}`, 'auth');
       const user = this.userRepository.create({
         role: id === process.env.ADMIN_ID_TG ? RolesEnum.ADMIN : RolesEnum.USER,
         name: props.first_name || props.username,
@@ -83,8 +86,8 @@ export class AuthService {
     }
   }
 
-  async generateToken({ id, role }: User) {
-    const payload: JwtPayloadType = { id, role };
+  async generateToken({ id, name }: User) {
+    const payload: JwtPayloadType = { id, name };
     return {
       token: this.jwtService.sign(payload),
     };
@@ -101,9 +104,13 @@ export class AuthService {
     await this.telegramRepository.delete({ id });
     await this.userRepository.delete({ id: telegram?.userId });
   }
+
+  findById(id: number) {
+    return this.userRepository.findOneBy({ id });
+  }
 }
 
-type JwtPayloadType = { id: number; role: RolesEnum };
+type JwtPayloadType = { id: number; name: string };
 
 type ChangeRoleProps = {
   id: number;

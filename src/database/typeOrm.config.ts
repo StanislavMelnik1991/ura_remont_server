@@ -14,8 +14,10 @@ import {
 } from './entities';
 import { ImageEntity } from './entities/image.entity';
 import { ImageList } from './entities/imageList.entity';
+import { Logger } from '@nestjs/common';
 
 export const typeOrmConfig = () => {
+  Logger.log(process.env.POSTGRES_HOST, 'typeOrm host');
   const host = process.env.POSTGRES_HOST;
   const port = Number(process.env.POSTGRES_PORT);
   const database = process.env.POSTGRES_DB;

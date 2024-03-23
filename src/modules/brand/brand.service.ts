@@ -2,6 +2,7 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -9,6 +10,7 @@ import { Brand, Dictionary, ImageList } from 'database';
 import { DictionaryService } from 'modules/dictionary/dictionary.service';
 import { ImageService } from 'modules/image/image.service';
 import { AcceptedLanguagesEnum } from 'shared/constants';
+import { IUser } from 'shared/types';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
 import { CreateBrandSchemeType, GetBrandsSchemeType } from 'types/swagger';
 
@@ -22,7 +24,11 @@ export class BrandService {
     @InjectRepository(Brand)
     private brandRepository: Repository<Brand>,
   ) {}
-  async create({ description, name }: CreateBrandSchemeType) {
+  async create({
+    description,
+    name,
+    user,
+  }: CreateBrandSchemeType & { user: IUser }) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -48,6 +54,10 @@ export class BrandService {
       await queryRunner.manager.save(Brand, newBrand);
 
       await queryRunner.commitTransaction();
+      Logger.log(
+        `user with id: ${user.id} create new brand id: ${newBrand.id}`,
+        'Brand',
+      );
       return newBrand;
     } catch (err) {
       await queryRunner.rollbackTransaction();
@@ -57,7 +67,7 @@ export class BrandService {
     }
   }
 
-  async update({ description, name, id }: UpdateProps) {
+  async update({ description, name, id, user }: UpdateProps & { user: IUser }) {
     const queryRunner = this.dataSource.createQueryRunner();
     await queryRunner.connect();
     await queryRunner.startTransaction();
@@ -86,7 +96,10 @@ export class BrandService {
       await Promise.all(jobs);
 
       await queryRunner.commitTransaction();
-
+      Logger.log(
+        `user with id: ${user.id} update brand with id: ${brand.id}`,
+        'Brand',
+      );
       return brand;
     } catch (err) {
       await queryRunner.rollbackTransaction();
@@ -138,12 +151,16 @@ export class BrandService {
       .getManyAndCount();
     return { data, total };
   }
-  async uploadImage({ data, id }: UploadImageProps) {
+  async uploadImage({ data, id, user }: UploadImageProps & { user: IUser }) {
     const type = await this.brandRepository.findOneBy({ id });
     if (!type) {
       throw new NotFoundException(`brand with id: ${id}`);
     }
     const basePath = `brand/${id}`;
+    Logger.log(
+      `user id: ${user.id} upload new image for brand id: ${id}`,
+      'Brand',
+    );
     return this.imageService.addImageToList({
       basePath,
       data,
