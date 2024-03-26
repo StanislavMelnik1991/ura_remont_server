@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -34,7 +35,7 @@ import { ONE_MB_IN_BYTES } from 'shared/constants';
 import { propertyCreateScheme, prototypeCreateScheme } from 'shared/schemas';
 import { IUser } from 'shared/types';
 
-const { create, getOne, uploadImage } = adminRouter.prototype;
+const { create, getOne, uploadImage, deleteOne } = adminRouter.prototype;
 const { createProperty, getAll } = adminRouter.property;
 
 @ApiTags('Admins commands', 'Prototype')
@@ -117,5 +118,19 @@ export class PrototypeController {
     @Req() { user }: { user: IUser },
   ) {
     return this.service.uploadImage({ data: file.buffer, id, user });
+  }
+
+  @ApiOperation({
+    summary: 'Delete prototype',
+  })
+  @ApiResponse({ status: 200 })
+  @Delete(deleteOne.route)
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
+  deleteBrand(
+    @Param(deleteOne.mask, ParseIntPipe) id: number,
+    @Req() { user }: { user: IUser },
+  ) {
+    return this.service.deletePrototype({ id, userId: user.id });
   }
 }

@@ -19,20 +19,23 @@ export class CharacteristicValueService {
     let entity = await this.valueRepository.findOneBy(props);
     if (!entity) {
       entity = this.valueRepository.create({ ...props, value });
+      Logger.log(
+        `user with id: ${user.id} create new CharacteristicValue with id: ${entity.id}`,
+        'CharacteristicValue',
+      );
     } else {
       entity.value = value;
+      Logger.log(
+        `user with id: ${user.id} update CharacteristicValue with id: ${entity.id}`,
+        'CharacteristicValue',
+      );
     }
-
     try {
       await this.valueRepository.save(entity);
     } catch (error) {
       Logger.error('INTERNAL_SERVER_ERROR', 'CharacteristicValue');
       throw new InternalServerErrorException();
     }
-    Logger.log(
-      `user with id: ${user.id} create new CharacteristicValue with id: ${entity.id}`,
-      'CharacteristicValue',
-    );
     return { id: entity.id };
   }
 

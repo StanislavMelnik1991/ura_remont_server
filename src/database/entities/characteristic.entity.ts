@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { Dictionary } from './dictionary.entity';
 import { TypeEntity } from './type.entity';
 import { CustomEntity } from './base.entity';
@@ -6,21 +6,21 @@ import { ICharacteristic } from 'shared/types';
 
 @Entity('characteristics')
 export class Characteristic extends CustomEntity implements ICharacteristic {
-  @ManyToOne(() => TypeEntity, (dict) => dict.id)
+  @ManyToOne(() => TypeEntity, (dict) => dict.id, { onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'typeId',
   })
   @Column()
   typeId: number;
 
-  @ManyToOne(() => Dictionary, (dict) => dict.id)
+  @OneToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({
     name: 'name',
   })
   @Column()
   name: number;
 
-  @ManyToOne(() => Dictionary, (dict) => dict.id)
+  @OneToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({
     name: 'suffix',
   })

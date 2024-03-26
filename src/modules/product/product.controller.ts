@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Param,
   ParseIntPipe,
   Patch,
@@ -33,7 +34,7 @@ import {
 } from 'shared/schemas';
 import { IUser } from 'shared/types';
 
-const { create, update } = adminRouter.product;
+const { create, update, deleteOne } = adminRouter.product;
 const { create: createValue } = adminRouter.propertyValues;
 
 @ApiTags('Admins commands', 'Product')
@@ -87,5 +88,19 @@ export class ProductController {
     @Req() { user }: { user: IUser },
   ) {
     return this.service.createValue({ ...data, user });
+  }
+
+  @ApiOperation({
+    summary: 'Delete prototype',
+  })
+  @ApiResponse({ status: 200 })
+  @Delete(deleteOne.route)
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
+  deleteBrand(
+    @Param(deleteOne.mask, ParseIntPipe) id: number,
+    @Req() { user }: { user: IUser },
+  ) {
+    return this.service.deleteProduct({ id, userId: user.id });
   }
 }

@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -34,7 +35,7 @@ import { ONE_MB_IN_BYTES } from 'shared/constants';
 import { typeCreateScheme, typeGetAllScheme } from 'shared/schemas';
 import { IUser } from 'shared/types';
 
-const { create, getAll, getOne, uploadImage } = adminRouter.type;
+const { create, getAll, getOne, uploadImage, deleteOne } = adminRouter.type;
 
 @ApiTags('Admins commands', 'Type')
 @ApiBearerAuth()
@@ -100,5 +101,19 @@ export class TypeController {
     @Req() { user }: { user: IUser },
   ) {
     return this.service.uploadImage({ data: file.buffer, id, user });
+  }
+
+  @ApiOperation({
+    summary: 'Delete type',
+  })
+  @ApiResponse({ status: 200 })
+  @Delete(deleteOne.route)
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
+  deleteBrand(
+    @Param(deleteOne.mask, ParseIntPipe) id: number,
+    @Req() { user }: { user: IUser },
+  ) {
+    return this.service.deleteType({ id, userId: user.id });
   }
 }

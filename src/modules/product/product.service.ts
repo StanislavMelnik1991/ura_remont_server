@@ -51,6 +51,20 @@ export class ProductService {
   createValue(props: CreateValueProps) {
     return this.valueService.create(props);
   }
+
+  async deleteProduct({ userId, id }: DeleteProps) {
+    const product = await this.productRepository.delete({ id });
+    Logger.log(
+      `user with id: ${userId} delete prototype with id: ${id}`,
+      'Prototype',
+    );
+    return product;
+  }
+}
+
+interface DeleteProps {
+  id: number;
+  userId: number;
 }
 
 type CreationProps = {

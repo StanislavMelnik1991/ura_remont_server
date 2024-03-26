@@ -5,7 +5,7 @@ import { ImageList } from './imageList.entity';
 
 @Entity('images')
 export class ImageEntity extends CustomEntity implements IImage {
-  @ManyToOne(() => ImageList, (el) => el.id)
+  @ManyToOne(() => ImageList, (el) => el.id, { onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'listId',
   })

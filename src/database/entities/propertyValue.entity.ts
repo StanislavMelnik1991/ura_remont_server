@@ -7,14 +7,16 @@ import { IPropertyValue } from 'shared/types';
 @Entity('property_values')
 @Unique(['productId', 'propertyId'])
 export class PropertyValue extends CustomEntity implements IPropertyValue {
-  @ManyToOne(() => Product, (dict) => dict.id)
+  @ManyToOne(() => Product, (dict) => dict.id, { onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'productId',
   })
   @Column()
   productId: number;
 
-  @ManyToOne(() => PrototypeProperty, (dict) => dict.id)
+  @ManyToOne(() => PrototypeProperty, (dict) => dict.id, {
+    onDelete: 'CASCADE',
+  })
   @JoinColumn({
     name: 'propertyId',
   })

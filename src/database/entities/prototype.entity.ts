@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { Brand } from './brand.entity';
 import { TypeEntity } from './type.entity';
 import { Dictionary } from './dictionary.entity';
@@ -8,7 +8,7 @@ import { ImageList } from './imageList.entity';
 
 @Entity('prototypes')
 export class ProductPrototype extends CustomEntity implements IPrototype {
-  @ManyToOne(() => ImageList, (el) => el.id)
+  @OneToOne(() => ImageList, (el) => el.id)
   @JoinColumn({
     name: 'listId',
   })
@@ -30,17 +30,17 @@ export class ProductPrototype extends CustomEntity implements IPrototype {
   @Column()
   typeId: number;
 
-  @ManyToOne(() => Dictionary, (dict) => dict.id)
+  @OneToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({
     name: 'name',
   })
   @Column()
-  name: number;
+  nameId: number;
 
-  @ManyToOne(() => Dictionary, (dict) => dict.id)
+  @OneToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({
     name: 'description',
   })
   @Column()
-  description: number;
+  descriptionId: number;
 }

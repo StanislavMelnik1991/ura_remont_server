@@ -5,7 +5,7 @@ import { IProduct } from 'shared/types';
 
 @Entity('products')
 export class Product extends CustomEntity implements IProduct {
-  @ManyToOne(() => ProductPrototype, (dict) => dict.id)
+  @ManyToOne(() => ProductPrototype, (dict) => dict.id, { onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'prototypeId',
   })

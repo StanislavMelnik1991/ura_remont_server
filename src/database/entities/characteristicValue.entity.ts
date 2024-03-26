@@ -10,14 +10,14 @@ export class CharacteristicValue
   extends CustomEntity
   implements ICharacteristicValue
 {
-  @ManyToOne(() => ProductPrototype, (dict) => dict.id)
+  @ManyToOne(() => ProductPrototype, (dict) => dict.id, { onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'prototypeId',
   })
   @Column()
   prototypeId: number;
 
-  @ManyToOne(() => Characteristic, (dict) => dict.id)
+  @ManyToOne(() => Characteristic, (dict) => dict.id, { onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'characteristicId',
   })

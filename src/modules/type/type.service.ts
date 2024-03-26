@@ -7,6 +7,7 @@ import {
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Dictionary, ImageList, ProductType } from 'database';
+import { TypeEntity } from 'database/entities/type.entity';
 import { CharacteristicService } from 'modules/characteristic/characteristic.service';
 import { DictionaryService } from 'modules/dictionary/dictionary.service';
 import { ImageService } from 'modules/image/image.service';
@@ -174,6 +175,50 @@ export class TypeService {
       userId: user.id,
     });
   }
+
+  async deleteType({ userId, id }: DeleteTypeProps) {
+    const productType = await this.typeRepository.findOneBy({ id });
+    if (!productType) {
+      Logger.warn(`Prototype ${id} not found`, 'Prototype');
+      throw new NotFoundException({ prototype: 'not found' });
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const { nameId, descriptionId, listId } = productType;
+
+      await Promise.all([
+        queryRunner.manager.delete(TypeEntity, { id }),
+        queryRunner.manager.delete(Dictionary, { id: nameId }),
+        queryRunner.manager.delete(Dictionary, { id: descriptionId }),
+        queryRunner.manager.delete(ImageList, { id: listId }),
+      ]);
+
+      await queryRunner.commitTransaction();
+      Logger.log(
+        `user with id: ${userId} delete prototype with id: ${productType.id}`,
+        'Prototype',
+      );
+      return productType;
+    } catch (err) {
+      console.log(err);
+      await queryRunner.rollbackTransaction();
+      if (err instanceof HttpException) {
+        throw new HttpException(err.getResponse(), err.getStatus());
+      }
+      Logger.error(`Internal error Delete prototype ${id}`, 'Prototype');
+      throw new InternalServerErrorException();
+    } finally {
+      await queryRunner.release();
+    }
+  }
+}
+interface DeleteTypeProps {
+  id: number;
+  userId: number;
 }
 
 interface UploadImageProps {

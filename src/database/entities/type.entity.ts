@@ -1,4 +1,4 @@
-import { Column, Entity, JoinColumn, ManyToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
 import { Dictionary } from './dictionary.entity';
 import { CustomEntity } from './base.entity';
 import { IProductType } from 'shared/types';
@@ -6,7 +6,7 @@ import { ImageList } from './imageList.entity';
 
 @Entity('types')
 export class TypeEntity extends CustomEntity implements IProductType {
-  @ManyToOne(() => ImageList, (el) => el.id)
+  @OneToOne(() => ImageList, (el) => el.id)
   @JoinColumn({
     name: 'listId',
   })
@@ -14,7 +14,7 @@ export class TypeEntity extends CustomEntity implements IProductType {
   @Column()
   listId: number;
 
-  @ManyToOne(() => Dictionary, (dict) => dict.id)
+  @OneToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({
     name: 'nameId',
   })
@@ -22,7 +22,7 @@ export class TypeEntity extends CustomEntity implements IProductType {
   @Column({ nullable: false })
   nameId: number;
 
-  @ManyToOne(() => Dictionary, (dict) => dict.id)
+  @OneToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({
     name: 'descriptionId',
   })

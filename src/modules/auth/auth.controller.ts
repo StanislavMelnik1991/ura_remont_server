@@ -16,7 +16,7 @@ import { apiRouter } from 'shared/router';
 import { AuthTelegramGuard } from 'guards/authTelegram.guard';
 import { authTelegramScheme } from 'shared/schemas';
 
-const { tgLogin, deleteTelegramUser, deleteUser } = apiRouter;
+const { tgLogin, deleteTelegramUser, deleteUser } = apiRouter.auth;
 
 @ApiTags('Authorization')
 @Controller()

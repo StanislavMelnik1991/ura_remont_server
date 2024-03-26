@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Get,
   Param,
   ParseIntPipe,
@@ -34,7 +35,7 @@ import { ONE_MB_IN_BYTES } from 'shared/constants';
 import { brandCreateScheme, brandGetAllScheme } from 'shared/schemas';
 import { IUser } from 'shared/types';
 
-const { create, getAll, getOne, uploadImage } = adminRouter.brand;
+const { create, getAll, getOne, uploadImage, deleteOne } = adminRouter.brand;
 
 @ApiTags('Admins commands', 'Brand')
 @ApiBearerAuth()
@@ -71,7 +72,6 @@ export class BrandController {
 
   @ApiOperation({
     summary: 'Get brand',
-    description: 'Get brand',
   })
   @ApiResponse({ status: 200, type: BrandSwaggerSchema })
   @Get(getOne.route)
@@ -79,6 +79,20 @@ export class BrandController {
     @Param(getOne.mask, ParseIntPipe) id: number,
   ): Promise<BrandSwaggerSchema> {
     return this.service.getBrand(id);
+  }
+
+  @ApiOperation({
+    summary: 'Delete brand',
+  })
+  @ApiResponse({ status: 200, type: BrandSwaggerSchema })
+  @Delete(deleteOne.route)
+  @Roles(RolesEnum.ADMIN)
+  @UseGuards(RolesGuard)
+  deleteBrand(
+    @Param(deleteOne.mask, ParseIntPipe) id: number,
+    @Req() { user }: { user: IUser },
+  ) {
+    return this.service.deleteBrand({ id, userId: user.id });
   }
 
   @ApiOperation({

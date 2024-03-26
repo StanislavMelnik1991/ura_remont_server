@@ -77,7 +77,7 @@ export class BrandService {
         Logger.warn('brand not found', 'Brand');
         throw new NotFoundException({ brand: 'not found' });
       }
-      const { name: nameId, description: descriptionId } = brand;
+      const { nameId, descriptionId } = brand;
       const jobs: Array<Promise<UpdateResult>> = [];
       if (name) {
         jobs.push(
@@ -168,6 +168,51 @@ export class BrandService {
       userId: user.id,
     });
   }
+
+  async deleteBrand({ userId, id }: DeleteBrandProps) {
+    const brand = await this.brandRepository.findOneBy({ id });
+    if (!brand) {
+      Logger.warn(`brand ${id} not found`, 'Brand');
+      throw new NotFoundException({ brand: 'not found' });
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const { nameId, descriptionId, listId } = brand;
+
+      await Promise.all([
+        queryRunner.manager.delete(Brand, { id }),
+        queryRunner.manager.delete(Dictionary, { id: nameId }),
+        queryRunner.manager.delete(Dictionary, { id: descriptionId }),
+        queryRunner.manager.delete(ImageList, { id: listId }),
+      ]);
+
+      await queryRunner.commitTransaction();
+      Logger.log(
+        `user with id: ${userId} delete brand with id: ${brand.id}`,
+        'Brand',
+      );
+      return brand;
+    } catch (err) {
+      console.log(err);
+      await queryRunner.rollbackTransaction();
+      if (err instanceof HttpException) {
+        throw new HttpException(err.getResponse(), err.getStatus());
+      }
+      Logger.error(`Internal error Delete brand ${id}`, 'Brand');
+      throw new InternalServerErrorException();
+    } finally {
+      await queryRunner.release();
+    }
+  }
+}
+
+interface DeleteBrandProps {
+  id: number;
+  userId: number;
 }
 
 interface UploadImageProps {

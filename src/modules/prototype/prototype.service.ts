@@ -73,8 +73,8 @@ export class PrototypeService {
         queryRunner.manager.save(ImageList, newImages),
       ]);
       const entity = queryRunner.manager.create(ProductPrototype, {
-        name: savedName.id,
-        description: savedDescription.id,
+        nameId: savedName.id,
+        descriptionId: savedDescription.id,
         image,
         brandId,
         typeId,
@@ -114,7 +114,7 @@ export class PrototypeService {
         Logger.warn(`Prototype not found`, 'Prototype');
         throw new NotFoundException({ type: 'not found' });
       }
-      const { name: nameId, description: descriptionId } = entity;
+      const { nameId, descriptionId } = entity;
       const jobs: Array<Promise<UpdateResult>> = [];
       if (name) {
         jobs.push(
@@ -210,6 +210,51 @@ export class PrototypeService {
       userId: user.id,
     });
   }
+
+  async deletePrototype({ userId, id }: DeleteProps) {
+    const prototype = await this.prototypeRepository.findOneBy({ id });
+    if (!prototype) {
+      Logger.warn(`Prototype ${id} not found`, 'Prototype');
+      throw new NotFoundException({ prototype: 'not found' });
+    }
+
+    const queryRunner = this.dataSource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      const { nameId, descriptionId, listId } = prototype;
+
+      await Promise.all([
+        queryRunner.manager.delete(ProductPrototype, { id }),
+        queryRunner.manager.delete(Dictionary, { id: nameId }),
+        queryRunner.manager.delete(Dictionary, { id: descriptionId }),
+        queryRunner.manager.delete(ImageList, { id: listId }),
+      ]);
+
+      await queryRunner.commitTransaction();
+      Logger.log(
+        `user with id: ${userId} delete prototype with id: ${prototype.id}`,
+        'Prototype',
+      );
+      return prototype;
+    } catch (err) {
+      console.log(err);
+      await queryRunner.rollbackTransaction();
+      if (err instanceof HttpException) {
+        throw new HttpException(err.getResponse(), err.getStatus());
+      }
+      Logger.error(`Internal error Delete prototype ${id}`, 'Prototype');
+      throw new InternalServerErrorException();
+    } finally {
+      await queryRunner.release();
+    }
+  }
+}
+
+interface DeleteProps {
+  id: number;
+  userId: number;
 }
 
 interface UploadImageProps {
