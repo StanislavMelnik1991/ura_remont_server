@@ -155,16 +155,16 @@ export class BrandService {
     return { data, total };
   }
   async uploadImage({ data, id, user }: UploadImageProps & { user: IUser }) {
-    const type = await this.brandRepository.findOneBy({ id });
-    if (!type) {
-      Logger.warn('type not found', 'Brand');
+    const brand = await this.brandRepository.findOneBy({ id });
+    if (!brand) {
+      Logger.warn('Brand not found', 'Brand');
       throw new NotFoundException(`brand with id: ${id}`);
     }
     const basePath = `brand/${id}`;
     return this.imageService.addImageToList({
       basePath,
       data,
-      listId: type.listId,
+      listId: brand.listId,
       userId: user.id,
     });
   }

@@ -17,7 +17,6 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
-import { CharacteristicSwaggerScheme } from 'types/swagger';
 import { adminRouter, apiRouter } from 'shared/router';
 import { ImageService } from './image.service';
 import { Roles } from 'decorators/roles.decorator';
@@ -41,7 +40,7 @@ export class ImageController {
     description: 'Get characteristics for type',
   })
   @ApiTags('Admins commands')
-  @ApiResponse({ status: 200, type: [CharacteristicSwaggerScheme] })
+  @ApiResponse({ status: 200 })
   @Delete(deleteCurrent.route)
   @Roles(RolesEnum.ADMIN)
   @UseGuards(RolesGuard)
@@ -54,7 +53,7 @@ export class ImageController {
     description: 'Get characteristics for type',
   })
   @ApiTags('Images')
-  @ApiResponse({ status: 200, type: [CharacteristicSwaggerScheme] })
+  @ApiResponse({ status: 200 })
   @Get(get.route)
   getCharacteristics(
     @Param(get.mask, ParseIntPipe) id: number,
