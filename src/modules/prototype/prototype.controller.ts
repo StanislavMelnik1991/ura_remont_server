@@ -14,6 +14,8 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -27,6 +29,7 @@ import {
   CreatePrototypeDto,
   PrototypeSwaggerScheme,
   CreatePropertyDto,
+  fileSchema,
 } from 'types/swagger';
 import { adminRouter } from 'shared/router';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
@@ -104,6 +107,8 @@ export class PrototypeController {
     description: 'Upload prototype image',
   })
   @ApiResponse({ status: 200 })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody(fileSchema)
   @Post(uploadImage.route)
   @Roles(RolesEnum.ADMIN)
   @UseGuards(RolesGuard)

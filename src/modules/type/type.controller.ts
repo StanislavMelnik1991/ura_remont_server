@@ -15,6 +15,8 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -27,6 +29,7 @@ import {
   TypeSwaggerScheme,
   CreateTypeDto,
   GetAllTypeSDto,
+  fileSchema,
 } from 'types/swagger';
 import { adminRouter } from 'shared/router';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
@@ -87,6 +90,8 @@ export class TypeController {
     description: 'Upload type image',
   })
   @ApiResponse({ status: 200 })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody(fileSchema)
   @Post(uploadImage.route)
   @Roles(RolesEnum.ADMIN)
   @UseGuards(RolesGuard)

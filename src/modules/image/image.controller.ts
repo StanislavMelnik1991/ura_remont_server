@@ -13,6 +13,8 @@ import {
 } from '@nestjs/common';
 import {
   ApiBearerAuth,
+  ApiBody,
+  ApiConsumes,
   ApiOperation,
   ApiResponse,
   ApiTags,
@@ -25,6 +27,7 @@ import { RolesGuard } from 'guards';
 import { Response } from 'express';
 import { IUser } from 'shared/types';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { fileSchema } from 'types/swagger';
 
 const { deleteCurrent, updateCurrent } = adminRouter.images;
 const { get } = apiRouter.images;
@@ -68,6 +71,8 @@ export class ImageController {
     description: 'Update current image',
   })
   @ApiResponse({ status: 200 })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody(fileSchema)
   @Patch(updateCurrent.route)
   @Roles(RolesEnum.ADMIN)
   @UseGuards(RolesGuard)

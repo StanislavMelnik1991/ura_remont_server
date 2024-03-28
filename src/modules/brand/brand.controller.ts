@@ -18,6 +18,8 @@ import {
   ApiResponse,
   ApiTags,
   ApiBearerAuth,
+  ApiConsumes,
+  ApiBody,
 } from '@nestjs/swagger';
 import { BrandService } from './brand.service';
 import { Roles } from 'decorators/roles.decorator';
@@ -27,6 +29,7 @@ import {
   BrandSwaggerSchema,
   CreateBrandDto,
   GetAllBrandsDto,
+  fileSchema,
 } from 'types/swagger';
 import { adminRouter } from 'shared/router';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
@@ -101,6 +104,8 @@ export class BrandController {
   })
   @ApiResponse({ status: 200 })
   @Post(uploadImage.route)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody(fileSchema)
   @Roles(RolesEnum.ADMIN)
   @UseGuards(RolesGuard)
   @UseInterceptors(
