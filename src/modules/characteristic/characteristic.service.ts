@@ -51,8 +51,8 @@ export class CharacteristicService {
       ]);
       const entity = manager.create(Characteristic, {
         typeId,
-        name: savedName.id,
-        suffix: savedSuffix.id,
+        nameId: savedName.id,
+        suffixId: savedSuffix.id,
         display,
         isFilter,
       });

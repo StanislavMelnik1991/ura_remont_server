@@ -2,10 +2,10 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToOne } from 'typeorm';
 import { Dictionary } from './dictionary.entity';
 import { ProductPrototype } from './prototype.entity';
 import { CustomEntity } from './base.entity';
-import { IProperty } from 'shared/types';
+import { IPropertyFull } from 'shared/types';
 
 @Entity('properties')
-export class PrototypeProperty extends CustomEntity implements IProperty {
+export class PrototypeProperty extends CustomEntity implements IPropertyFull {
   @ManyToOne(() => ProductPrototype, (dict) => dict.id, { onDelete: 'CASCADE' })
   @JoinColumn({
     name: 'prototypeId',
@@ -17,15 +17,17 @@ export class PrototypeProperty extends CustomEntity implements IProperty {
   @JoinColumn({
     name: 'name',
   })
+  name: Dictionary;
   @Column()
-  name: number;
+  nameId: number;
 
   @OneToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({
     name: 'suffix',
   })
+  suffix: Dictionary;
   @Column()
-  suffix: number;
+  suffixId: number;
 
   @Column({ default: false })
   isFilter: boolean;

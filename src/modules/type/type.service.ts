@@ -12,7 +12,7 @@ import { CharacteristicService } from 'modules/characteristic/characteristic.ser
 import { DictionaryService } from 'modules/dictionary/dictionary.service';
 import { ImageService } from 'modules/image/image.service';
 import { AcceptedLanguagesEnum } from 'shared/constants';
-import { IUser } from 'shared/types';
+import { ITypeFull, IUser } from 'shared/types';
 import { Repository, DataSource, UpdateResult } from 'typeorm';
 import { GetAllTypeSDto } from 'types/swagger';
 
@@ -121,6 +121,9 @@ export class TypeService {
       const entity = await this.typeRepository
         .createQueryBuilder('type')
         .leftJoinAndSelect('type.name', 'name')
+        .leftJoinAndSelect('type.characteristics', 'characteristics')
+        .leftJoinAndSelect('characteristics.name', 'characteristics.name')
+        .leftJoinAndSelect('characteristics.suffix', 'characteristics.suffix')
         .leftJoinAndSelect('type.description', 'description')
         .leftJoinAndSelect('type.images', 'images')
         .leftJoinAndSelect('images.images', 'image')
@@ -145,10 +148,13 @@ export class TypeService {
   }
 
   async getAllTypes({ page, perPage, searchValue }: GetAllTypeSDto) {
-    const [data, total] = await this.typeRepository
+    const [data, total] = (await this.typeRepository
       .createQueryBuilder('type')
       .leftJoinAndSelect('type.name', 'name')
       .leftJoinAndSelect('type.description', 'description')
+      .leftJoinAndSelect('type.characteristics', 'characteristics')
+      .leftJoinAndSelect('characteristics.name', 'characteristics.name')
+      .leftJoinAndSelect('characteristics.suffix', 'characteristics.suffix')
       .leftJoinAndSelect('type.images', 'images')
       .leftJoinAndSelect('images.images', 'image')
       .where(
@@ -157,7 +163,7 @@ export class TypeService {
       )
       .take(perPage)
       .skip(perPage * (page - 1))
-      .getManyAndCount();
+      .getManyAndCount()) as unknown as [ITypeFull, number];
     return { data, total };
   }
 

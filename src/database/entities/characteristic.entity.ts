@@ -10,22 +10,25 @@ export class Characteristic extends CustomEntity implements ICharacteristic {
   @JoinColumn({
     name: 'typeId',
   })
+  type: TypeEntity;
   @Column()
   typeId: number;
 
   @OneToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({
-    name: 'name',
+    name: 'nameId',
   })
-  @Column()
-  name: number;
+  name: Dictionary;
+  @Column({ nullable: false })
+  nameId: number;
 
   @OneToOne(() => Dictionary, (dict) => dict.id)
   @JoinColumn({
-    name: 'suffix',
+    name: 'suffixId',
   })
-  @Column()
-  suffix: number;
+  suffix: Dictionary;
+  @Column({ nullable: false })
+  suffixId: number;
 
   @Column({ default: false })
   isFilter: boolean;

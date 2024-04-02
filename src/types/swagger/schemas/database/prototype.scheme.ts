@@ -9,9 +9,9 @@ export class PrototypeSwaggerScheme extends BaseScheme implements IPrototype {
   @ApiProperty({ example: 1 })
   typeId: number;
 
-  @ApiProperty({ example: 'Amphibolin', required: true })
+  @ApiProperty({ example: 'Amphibolin' })
   nameId: number;
 
-  @ApiProperty({ example: 'универсальная акрилатная краска', required: false })
-  descriptionId?: number;
+  @ApiProperty({ example: 'универсальная акрилатная краска' })
+  descriptionId: number;
 }

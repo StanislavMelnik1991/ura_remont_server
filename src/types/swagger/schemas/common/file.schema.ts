@@ -2,10 +2,10 @@ export const fileSchema = {
   schema: {
     type: 'object',
     properties: {
-      'file': {
+      file: {
         type: 'string',
         format: 'binary',
       },
     },
   },
-}
+};

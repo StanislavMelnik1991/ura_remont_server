@@ -18,20 +18,18 @@ export class BrandSwaggerSchema extends BaseScheme implements IBrand {
   })
   descriptionId: number;
 }
-export class LocalizedBrandSwaggerSchema extends BaseScheme {
-  @ApiProperty()
-  name: string;
 
-  @ApiProperty({
-    required: false,
-  })
-  description: string;
-}
-
-export class AdminBrandSwaggerSchema extends BaseScheme {
+export class BrandFullSwaggerSchema extends BaseScheme {
   @ApiProperty()
   name: DictionarySwaggerScheme;
 
   @ApiProperty()
   description: DictionarySwaggerScheme;
+}
+
+export class GetManyBrandsSwaggerScheme {
+  @ApiProperty({ example: 1 })
+  total: number;
+  @ApiProperty({ isArray: true })
+  data: BrandFullSwaggerSchema;
 }

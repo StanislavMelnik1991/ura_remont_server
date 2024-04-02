@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { ICharacteristic } from 'shared/types';
+import { ICharacteristic, ICharacteristicFull } from 'shared/types';
 import { BaseScheme } from './base.scheme';
+import { DictionarySwaggerScheme } from './dictionary.scheme';
 
 export class CharacteristicSwaggerScheme
   extends BaseScheme
@@ -11,14 +12,14 @@ export class CharacteristicSwaggerScheme
     example: 1,
     required: true,
   })
-  name: number;
+  nameId: number;
 
   @ApiProperty({
     description: 'dictionary Id',
     example: 1,
     required: false,
   })
-  suffix: number;
+  suffixId: number;
 
   @ApiProperty({
     description: 'type Id',
@@ -40,4 +41,14 @@ export class CharacteristicSwaggerScheme
     required: true,
   })
   display: boolean;
+}
+
+export class CharacteristicFullSwaggerScheme
+  extends CharacteristicSwaggerScheme
+  implements ICharacteristicFull
+{
+  @ApiProperty()
+  name: DictionarySwaggerScheme;
+  @ApiProperty()
+  suffix: DictionarySwaggerScheme;
 }

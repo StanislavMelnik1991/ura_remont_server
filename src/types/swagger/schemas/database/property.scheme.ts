@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { BaseScheme } from './base.scheme';
-import { IProperty } from 'shared/types';
+import { IProperty, IPropertyFull } from 'shared/types';
+import { DictionarySwaggerScheme } from './dictionary.scheme';
 
 export class PropertySwaggerScheme extends BaseScheme implements IProperty {
   @ApiProperty({
@@ -8,14 +9,14 @@ export class PropertySwaggerScheme extends BaseScheme implements IProperty {
     example: 1,
     required: true,
   })
-  name: number;
+  nameId: number;
 
   @ApiProperty({
     description: 'dictionary Id',
     example: 1,
     required: false,
   })
-  suffix: number;
+  suffixId: number;
 
   @ApiProperty({
     description: 'prototype Id',
@@ -37,4 +38,12 @@ export class PropertySwaggerScheme extends BaseScheme implements IProperty {
     required: true,
   })
   display: boolean;
+}
+
+export class PropertyFullSwaggerScheme
+  extends PropertySwaggerScheme
+  implements IPropertyFull
+{
+  name: DictionarySwaggerScheme;
+  suffix: DictionarySwaggerScheme;
 }

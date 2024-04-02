@@ -181,8 +181,8 @@ export class PrototypeService {
             characteristicId: el.id,
             prototypeId,
           }),
-          this.dictionaryService.findById(el.name),
-          this.dictionaryService.findById(el.suffix),
+          this.dictionaryService.findById(el.nameId),
+          this.dictionaryService.findById(el.suffixId),
         ]);
         return {
           id: el.id,

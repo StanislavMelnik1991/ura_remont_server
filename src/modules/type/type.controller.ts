@@ -30,6 +30,8 @@ import {
   CreateTypeDto,
   GetAllTypeSDto,
   fileSchema,
+  TypeFullSwaggerScheme,
+  GetManyTypesSwaggerScheme,
 } from 'types/swagger';
 import { adminRouter } from 'shared/router';
 import { ZodValidationPipe } from 'pipes/zodValidation.pipe';
@@ -37,6 +39,7 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ONE_MB_IN_BYTES } from 'shared/constants';
 import { typeCreateScheme, typeGetAllScheme } from 'shared/schemas';
 import { IUser } from 'shared/types';
+import { ProductType } from 'database';
 
 const { create, getAll, getOne, uploadImage, deleteOne } = adminRouter.type;
 
@@ -66,7 +69,10 @@ export class TypeController {
     summary: 'Get all types',
     description: 'Get all types with dictionaries',
   })
-  @ApiResponse({ status: 200, type: [TypeSwaggerScheme] })
+  @ApiResponse({
+    status: 200,
+    type: GetManyTypesSwaggerScheme,
+  })
   @Get(getAll.route)
   @UsePipes(new ZodValidationPipe(typeGetAllScheme))
   getAll(@Query() data: GetAllTypeSDto) {
@@ -77,11 +83,9 @@ export class TypeController {
     summary: 'Get type',
     description: 'Get type',
   })
-  @ApiResponse({ status: 200, type: TypeSwaggerScheme })
+  @ApiResponse({ status: 200, type: TypeFullSwaggerScheme })
   @Get(getOne.route)
-  getType(
-    @Param(getOne.mask, ParseIntPipe) id: number,
-  ): Promise<TypeSwaggerScheme> {
+  getType(@Param(getOne.mask, ParseIntPipe) id: number): Promise<ProductType> {
     return this.service.getType(id);
   }
 

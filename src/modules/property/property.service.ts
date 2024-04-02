@@ -47,8 +47,8 @@ export class PropertyService {
       ]);
       const entity = queryRunner.manager.create(PrototypeProperty, {
         prototypeId,
-        name: savedName.id,
-        suffix: savedSuffix.id,
+        nameId: savedName.id,
+        suffixId: savedSuffix.id,
         display,
         isFilter,
       });

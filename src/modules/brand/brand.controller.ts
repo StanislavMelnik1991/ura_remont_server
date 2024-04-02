@@ -26,9 +26,11 @@ import { Roles } from 'decorators/roles.decorator';
 import { RolesEnum } from 'shared/constants';
 import { RolesGuard } from 'guards';
 import {
+  BrandFullSwaggerSchema,
   BrandSwaggerSchema,
   CreateBrandDto,
   GetAllBrandsDto,
+  GetManyBrandsSwaggerScheme,
   fileSchema,
 } from 'types/swagger';
 import { adminRouter } from 'shared/router';
@@ -50,7 +52,7 @@ export class BrandController {
     summary: 'Create brand',
     description: 'Creation new brand',
   })
-  @ApiResponse({ status: 200, type: BrandSwaggerSchema })
+  @ApiResponse({ status: 200, type: BrandFullSwaggerSchema })
   @Post(create.route)
   @Roles(RolesEnum.ADMIN)
   @UseGuards(RolesGuard)
@@ -66,7 +68,7 @@ export class BrandController {
     summary: 'Get all brands',
     description: 'Get all brands with dictionaries',
   })
-  @ApiResponse({ status: 200 })
+  @ApiResponse({ status: 200, type: GetManyBrandsSwaggerScheme })
   @Get(getAll.route)
   @UsePipes(new ZodValidationPipe(brandGetAllScheme))
   getAll(@Query() data: GetAllBrandsDto) {
@@ -76,7 +78,7 @@ export class BrandController {
   @ApiOperation({
     summary: 'Get brand',
   })
-  @ApiResponse({ status: 200, type: BrandSwaggerSchema })
+  @ApiResponse({ status: 200, type: BrandFullSwaggerSchema })
   @Get(getOne.route)
   getBrand(
     @Param(getOne.mask, ParseIntPipe) id: number,
@@ -87,7 +89,7 @@ export class BrandController {
   @ApiOperation({
     summary: 'Delete brand',
   })
-  @ApiResponse({ status: 200, type: BrandSwaggerSchema })
+  @ApiResponse({ status: 200, type: BrandFullSwaggerSchema })
   @Delete(deleteOne.route)
   @Roles(RolesEnum.ADMIN)
   @UseGuards(RolesGuard)

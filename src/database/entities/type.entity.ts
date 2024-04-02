@@ -1,11 +1,12 @@
-import { Column, Entity, JoinColumn, OneToOne } from 'typeorm';
+import { Column, Entity, JoinColumn, OneToMany, OneToOne } from 'typeorm';
 import { Dictionary } from './dictionary.entity';
 import { CustomEntity } from './base.entity';
-import { IProductType } from 'shared/types';
+import { ITypeFull } from 'shared/types';
 import { ImageList } from './imageList.entity';
+import { Characteristic } from './characteristic.entity';
 
 @Entity('types')
-export class TypeEntity extends CustomEntity implements IProductType {
+export class TypeEntity extends CustomEntity implements ITypeFull {
   @OneToOne(() => ImageList, (el) => el.id)
   @JoinColumn({
     name: 'listId',
@@ -29,4 +30,7 @@ export class TypeEntity extends CustomEntity implements IProductType {
   description: Dictionary;
   @Column()
   descriptionId: number;
+
+  @OneToMany(() => Characteristic, (el) => el.type)
+  characteristics: Array<Characteristic>;
 }
